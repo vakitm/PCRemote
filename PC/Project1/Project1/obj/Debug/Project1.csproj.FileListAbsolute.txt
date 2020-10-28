@@ -1,0 +1,2 @@
+C:\Users\Vaki\Documents\PCRemote\PC\Project1\Project1\obj\Debug\Project1.csprojAssemblyReference.cache
+C:\Users\Vaki\Documents\PCRemote\PC\Project1\Project1\obj\Debug\Project1.csproj.CoreCompileInputs.cache
