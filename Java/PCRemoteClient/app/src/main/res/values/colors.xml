@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#239BD1</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="whiteColor">#FFFFFF</color>
+    <color name="connected">#1cc61c</color>
+    <color name="connecting">#ff8800</color>
 </resources>

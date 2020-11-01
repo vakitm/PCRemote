@@ -21,6 +21,19 @@
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        <LinearLayout
+            android:id="@+id/statusbar"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="#FF6600"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/statusbar_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:text="Connecting"/>
+        </LinearLayout>
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"

@@ -22,6 +22,7 @@ namespace PCRemote
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
         SimpleTcpServer server;
+        private SsdpDevicePublisher _Publisher;
 
         public MainForm()
         {
@@ -42,7 +43,21 @@ namespace PCRemote
             server.StringEncoder = Encoding.UTF8;
             server.Start(System.Net.IPAddress.Parse("0.0.0.0"), 1337);
         }
-
+        public void PublishDevice()
+        {
+            // As this is a sample, we are only setting the minimum required properties.
+            var deviceDefinition = new SsdpRootDevice()
+            {
+                CacheLifetime = TimeSpan.FromMinutes(30), //How long SSDP clients can cache this info.
+                Location = new Uri("http://mydevice/descriptiondocument.xml"), // Must point to the URL that serves your devices UPnP description document. 
+                DeviceTypeNamespace = "my-namespace",
+                DeviceType = "MyCustomDevice",
+                FriendlyName = "Custom Device 1",
+                Manufacturer = "Me",
+                ModelName = "MyCustomDevice",
+                Uuid = "asd" // This must be a globally unique value that survives reboots etc. Get from storage or embedded hardware etc.
+            };
+        }
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
             
@@ -57,7 +72,8 @@ namespace PCRemote
         private void Server_DataReceived(object sender, SimpleTCP.Message e)
         {
             Debug.WriteLine(e.MessageString);
-            e.ReplyLine(e.MessageString);
+            e.Reply(e.MessageString);
+            PublishDevice();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

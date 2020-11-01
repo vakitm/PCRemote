@@ -1,5 +1,6 @@
 package com.vaki.pcremoteclient;
 
+import android.os.AsyncTask;
 import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -25,11 +26,14 @@ public class TcpClient {
     // used to read messages from the server
     private BufferedReader mBufferIn;
 
+    public MainActivity mainActivity;
+
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages received from server
      */
-    public TcpClient(OnMessageReceived listener) {
+    public TcpClient(OnMessageReceived listener,MainActivity parent) {
         mMessageListener = listener;
+        mainActivity = parent;
     }
 
     /**
@@ -41,9 +45,10 @@ public class TcpClient {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
+
                 if (mBufferOut != null) {
                     Log.d(TAG, "Sending: " + message);
-                    mBufferOut.println(message);
+                    mBufferOut.print(message);
                     mBufferOut.flush();
                 }
             }
@@ -73,55 +78,56 @@ public class TcpClient {
     public void run() {
 
         mRun = true;
-
-        try {
-            //here you must put your computer's IP address.
-            InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-
-            Log.d("TCP Client", "C: Connecting...");
-
-            //create a socket to make the connection with the server
-            Socket socket = new Socket(serverAddr, SERVER_PORT);
-
+        while (true)
+        {
             try {
+                //here you must put your computer's IP address.
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
 
-                //sends the message to the server
-                mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(),"UTF-8")), true);
+                Log.d("TCP", "C: Connecting...");
 
-                //receives the message which the server sends back
-                mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
+                //create a socket to make the connection with the server
+                final Socket socket = new Socket(serverAddr, SERVER_PORT);
+                Log.d("TCP", "C: Connected");
+                mainActivity.changeStatusBar(1);
+                try {
 
+                    //sends the message to the server
+                    mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")), true);
 
-                //in this while the client listens for the messages sent by the server
-                while (mRun) {
+                    //receives the message which the server sends back
+                    mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 
-                    mServerMessage = mBufferIn.readLine();
+                    while (mRun) {
 
-                    if (mServerMessage != null && mMessageListener != null) {
-                        //call the method messageReceived from MyActivity class
-                        mMessageListener.messageReceived(mServerMessage);
+                        mServerMessage = mBufferIn.readLine();
+                        if (mServerMessage != null && mMessageListener != null) {
+                            //call the method messageReceived from MyActivity class
+                            mMessageListener.messageReceived(mServerMessage);
+                        }
+                        else if(mServerMessage==null) {
+                            throw new Exception();
+                        }
                     }
 
+                } catch (Exception e) {
+                    Log.e("TCP", "S: Error2", e);
+
+                } finally {
+                    //the socket must be closed. It is not possible to reconnect to this socket
+                    // after it is closed, which means a new socket instance has to be created.
+                    socket.close();
+                    mainActivity.changeStatusBar(2);
+                    Log.d("TCP", "C: Disconnected");
                 }
 
-                Log.d("RESPONSE FROM SERVER", "S: Received Message: '" + mServerMessage + "'");
-
             } catch (Exception e) {
-                Log.e("TCP", "S: Error", e);
-            } finally {
-                //the socket must be closed. It is not possible to reconnect to this socket
-                // after it is closed, which means a new socket instance has to be created.
-                socket.close();
+                Log.e("TCP", "C: Error1", e);
             }
-
-        } catch (Exception e) {
-            Log.e("TCP", "C: Error", e);
         }
 
     }
 
-    //Declare the interface. The method messageReceived(String message) will must be implemented in the Activity
-    //class at on AsyncTask doInBackground
     public interface OnMessageReceived {
         public void messageReceived(String message);
     }

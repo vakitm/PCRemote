@@ -10,6 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import io.resourcepool.ssdp.client.SsdpClient;
+import io.resourcepool.ssdp.model.DiscoveryListener;
+import io.resourcepool.ssdp.model.DiscoveryRequest;
+import io.resourcepool.ssdp.model.SsdpRequest;
+import io.resourcepool.ssdp.model.SsdpService;
+import io.resourcepool.ssdp.model.SsdpServiceAnnouncement;
+
 public class HomeFragment extends Fragment implements View.OnClickListener  {
     Button btn;
     View rootView;
@@ -44,5 +51,24 @@ public class HomeFragment extends Fragment implements View.OnClickListener  {
     public void onClick(View view) {
         Log.d("HomeFragment","clicked");
         ((MainActivity) getActivity()).mTcpClient.sendMessage("asd");
+        SsdpClient client = SsdpClient.create();
+        DiscoveryRequest all = SsdpRequest.discoverAll();
+        client.discoverServices(all, new DiscoveryListener() {
+            @Override
+            public void onServiceDiscovered(SsdpService service) {
+                Log.d("SSDP","Found service: " + service);
+            }
+
+            @Override
+            public void onServiceAnnouncement(SsdpServiceAnnouncement announcement) {
+                Log.d("SSDP","Service announced something: " + announcement);
+            }
+
+            @Override
+            public void onFailed(Exception e) {
+
+            }
+        });
+
     }
 }
