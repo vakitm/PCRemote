@@ -34,6 +34,7 @@
             this.toplabel = new System.Windows.Forms.Label();
             this.topbar = new System.Windows.Forms.Label();
             this.notifyIconMain_menu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openprogram = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.connect = new System.Windows.Forms.ToolStripMenuItem();
             this.restart = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,7 +43,9 @@
             this.button1 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.exit_icon = new System.Windows.Forms.PictureBox();
-            this.openprogram = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusTimer = new System.Windows.Forms.Timer(this.components);
+            this.connectedcount = new System.Windows.Forms.Label();
+            this.leftbar = new System.Windows.Forms.Label();
             this.notifyIconMain_menu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.exit_icon)).BeginInit();
@@ -91,6 +94,13 @@
             this.notifyIconMain_menu.Name = "notifyicon_menu";
             this.notifyIconMain_menu.Size = new System.Drawing.Size(198, 104);
             // 
+            // openprogram
+            // 
+            this.openprogram.Image = ((System.Drawing.Image)(resources.GetObject("openprogram.Image")));
+            this.openprogram.Name = "openprogram";
+            this.openprogram.Size = new System.Drawing.Size(197, 22);
+            this.openprogram.Text = "Open PCRemote Server";
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
@@ -131,10 +141,11 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(95)))), ((int)(((byte)(180)))));
             this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Default;
             this.pictureBox1.Image = global::PCRemote.Properties.Resources.logo;
             this.pictureBox1.InitialImage = null;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 33);
+            this.pictureBox1.Location = new System.Drawing.Point(12, 33);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(100, 100);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -158,12 +169,32 @@
             this.exit_icon.MouseLeave += new System.EventHandler(this.exit_icon_MouseLeave);
             this.exit_icon.MouseHover += new System.EventHandler(this.exit_icon_MouseHover);
             // 
-            // openprogram
+            // statusTimer
             // 
-            this.openprogram.Image = ((System.Drawing.Image)(resources.GetObject("openprogram.Image")));
-            this.openprogram.Name = "openprogram";
-            this.openprogram.Size = new System.Drawing.Size(197, 22);
-            this.openprogram.Text = "Open PCRemote Server";
+            this.statusTimer.Enabled = true;
+            this.statusTimer.Interval = 5000;
+            this.statusTimer.Tick += new System.EventHandler(this.statusTimer_Tick);
+            // 
+            // connectedcount
+            // 
+            this.connectedcount.AutoSize = true;
+            this.connectedcount.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(95)))), ((int)(((byte)(180)))));
+            this.connectedcount.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.connectedcount.ForeColor = System.Drawing.Color.White;
+            this.connectedcount.Location = new System.Drawing.Point(9, 145);
+            this.connectedcount.Name = "connectedcount";
+            this.connectedcount.Size = new System.Drawing.Size(124, 17);
+            this.connectedcount.TabIndex = 69;
+            this.connectedcount.Text = "Connected clients: 0";
+            // 
+            // leftbar
+            // 
+            this.leftbar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(95)))), ((int)(((byte)(180)))));
+            this.leftbar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.leftbar.Location = new System.Drawing.Point(0, 30);
+            this.leftbar.Name = "leftbar";
+            this.leftbar.Size = new System.Drawing.Size(202, 425);
+            this.leftbar.TabIndex = 70;
             // 
             // MainForm
             // 
@@ -171,11 +202,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(46)))), ((int)(((byte)(59)))));
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.connectedcount);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.exit_icon);
             this.Controls.Add(this.toplabel);
             this.Controls.Add(this.topbar);
+            this.Controls.Add(this.leftbar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
@@ -205,6 +238,9 @@
         private System.Windows.Forms.ToolStripMenuItem quit;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Timer statusTimer;
+        private System.Windows.Forms.Label connectedcount;
+        private System.Windows.Forms.Label leftbar;
     }
 }
 

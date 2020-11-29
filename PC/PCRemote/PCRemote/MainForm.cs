@@ -13,20 +13,41 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rssdp;
 using SimpleTCP;
+using Newtonsoft.Json;
+using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
+
 namespace PCRemote
 {
     public partial class MainForm : Form
     {
+        PerformanceCounter cpuCounter;
+        PerformanceCounter ramCounter;
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
         SimpleTcpServer server;
         private SsdpDevicePublisher _Publisher;
+        int availableRam;
+        long down, up;
+        int x, y;
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        static extern short VkKeyScan(char ch);
+        [DllImport("user32.dll")]
+        public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
         public MainForm()
         {
             InitializeComponent();
+            cpuCounter = new PerformanceCounter();
+            up = 0; down = 0;
+            cpuCounter.CategoryName = "Processor";
+            cpuCounter.CounterName = "% Processor Time";
+            cpuCounter.InstanceName = "_Total";
+            var info = new Microsoft.VisualBasic.Devices.ComputerInfo();
+            availableRam = Convert.ToInt32(info.TotalPhysicalMemory / 1024 / 1024);
+            ramCounter = new PerformanceCounter("Memory", "Available MBytes");
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(0, 2000);
             notifyIconMain.ContextMenuStrip = notifyIconMain_menu;
@@ -39,9 +60,10 @@ namespace PCRemote
             server.DataReceived += Server_DataReceived;
             server.ClientConnected += Server_ClientConnected;
             server.ClientDisconnected += Server_ClientDisconnected;
-            
+
             server.StringEncoder = Encoding.UTF8;
             server.Start(System.Net.IPAddress.Parse("0.0.0.0"), 1337);
+            x = 0; y = 0;
         }
         public void PublishDevice()
         {
@@ -60,22 +82,101 @@ namespace PCRemote
         }
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
-            
+
             Debug.WriteLine("Disconnected");
+            connectedcount.Invoke((MethodInvoker)delegate
+            {
+                connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
+            });
         }
 
         private void Server_ClientConnected(object sender, TcpClient e)
         {
             Debug.WriteLine("Connected");
+            connectedcount.Invoke((MethodInvoker)delegate
+            {
+                connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
+            });
         }
 
         private void Server_DataReceived(object sender, SimpleTCP.Message e)
         {
-            Debug.WriteLine(e.MessageString);
-            e.Reply(e.MessageString);
-            PublishDevice();
+            Debug.WriteLine("|||" + e.MessageString + "|||");
+            string message = e.MessageString;
+            try
+            {
+                if (e.MessageString.Contains("}{"))
+                {
+                    Debug.WriteLine("Found:" + e.MessageString + " Found");
+                    int c = 0;
+                    string[] split = message.Split(new string[] { "}{" }, StringSplitOptions.None);
+                    foreach (string asd in split)
+                    {
+                        if (c == 0)
+                            processJson(asd + '}');
+                        else if (c == split.Length - 1)
+                            processJson('{' + asd);
+                        else
+                            processJson('{' + asd + '}');
+                        c++;
+                    }
+                }
+                else processJson(message);
+            }
+            catch (JsonReaderException i)
+            {
+            }
+            //PublishDevice();
         }
+        private void processJson(string message)
+        {
+            Dictionary<string, string> json = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
+            switch (json["a"])
+            {
+                case "d":
 
+                    x = Convert.ToInt32(json["x"]);
+                    y = Convert.ToInt32(json["y"]);
+                    break;
+                case "k":
+                    if (json["k"] == "bs")
+                        keybd_event((byte)0x08, 0x9e, 0, 0);
+                    else
+                    {
+                        char key = Convert.ToChar(Convert.ToInt32(json["k"]));
+                        if (VkKeyScan(key) > 255) return;
+                        Debug.WriteLine(Convert.ToString(key));
+                        Debug.WriteLine(VkKeyScan(key));
+                        keybd_event(Convert.ToByte(VkKeyScan(key)), 0x9e, 0, 0);
+                    }
+                    break;
+                case "m":
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+
+                            int step = 20;
+                            int xmove, ymove;
+                            if (x > Convert.ToInt32(json["x"]))
+                                xmove = x - Convert.ToInt32(json["x"]);
+                            else if (x < Convert.ToInt32(json["x"]))
+                                xmove = x - Convert.ToInt32(json["x"]);
+                            else xmove = 0;
+                            if (y > Convert.ToInt32(json["y"]))
+                                ymove = y - Convert.ToInt32(json["y"]);
+                            else if (y < Convert.ToInt32(json["y"]))
+                                ymove = y - Convert.ToInt32(json["y"]);
+                            else ymove = 0;
+                            this.Cursor = new Cursor(Cursor.Current.Handle);
+                            Cursor.Position = new Point(Cursor.Position.X - xmove, Cursor.Position.Y - ymove);
+                            x = Convert.ToInt32(json["x"]);
+                            y = Convert.ToInt32(json["y"]);
+                        }));
+                    });
+                    break;
+            }
+        }
         private void MainForm_Load(object sender, EventArgs e)
         {
             BeginInvoke(new MethodInvoker(delegate
@@ -147,7 +248,75 @@ namespace PCRemote
 
         private void button1_Click(object sender, EventArgs e)
         {
-            server.Broadcast("werikci"+ Environment.NewLine);
+            server.Broadcast("werikci" + Environment.NewLine);
+        }
+
+        private void statusTimer_Tick(object sender, EventArgs e)
+        {
+            int ping = 0;
+            long upload = 0;
+            long download = 0;
+            bool networkstatus = true;
+            try
+            {
+                NetworkInterface[] networks = NetworkInterface.GetAllNetworkInterfaces();
+                NetworkInterface ni = networks.First(x => x.NetworkInterfaceType != NetworkInterfaceType.Loopback
+                   && x.NetworkInterfaceType != NetworkInterfaceType.Tunnel
+                   && x.OperationalStatus == OperationalStatus.Up
+                   && x.Name.StartsWith("vEthernet") == false);
+                //NetworkInterface ni = networks[0];
+
+
+                Ping myPing = new Ping();
+
+                PingReply reply = myPing.Send("google.com", 5000);
+                if (reply != null)
+                {
+                    ping = Convert.ToInt32(reply.RoundtripTime);
+                }
+
+
+                download = (ni.GetIPv4Statistics().BytesReceived - down) / 1024 / 5; down = ni.GetIPv4Statistics().BytesReceived;
+                upload = (ni.GetIPv4Statistics().BytesSent - up) / 1024 / 5; up = ni.GetIPv4Statistics().BytesSent;
+            }
+            catch { networkstatus = false; }
+
+            if (server.ConnectedClientsCount != 0)
+            {
+                CheckIn checkin = new CheckIn
+                {
+                    task = "checkin",
+                    cpu = Convert.ToInt32(getCurrentCpuUsage()),
+                    ram = Convert.ToInt32(getRAMUsage()),
+                    up = Convert.ToInt32(upload),
+                    down = Convert.ToInt32(download),
+                    ping = ping,
+                    network = networkstatus
+                };
+                string json = JsonConvert.SerializeObject(checkin, Formatting.None);
+                server.Broadcast(json + Environment.NewLine);
+                //Debug.WriteLine(json);
+            }
+        }
+        public double getCurrentCpuUsage()
+        {
+            return cpuCounter.NextValue();
+        }
+
+        public double getRAMUsage()
+        {
+            return ((availableRam - ramCounter.NextValue()) / availableRam) * 100;
         }
     }
+    class CheckIn
+    {
+        public string task { get; set; }
+        public int cpu { get; set; }
+        public int ram { get; set; }
+        public int up { get; set; }
+        public int down { get; set; }
+        public int ping { get; set; }
+        public bool network { get; set; }
+    }
+
 }

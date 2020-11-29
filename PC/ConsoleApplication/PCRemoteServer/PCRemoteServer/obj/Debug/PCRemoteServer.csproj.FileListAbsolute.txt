@@ -1,0 +1,7 @@
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\bin\Debug\PCRemoteServer.exe.config
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\bin\Debug\PCRemoteServer.exe
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\bin\Debug\PCRemoteServer.pdb
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\obj\Debug\PCRemoteServer.csprojAssemblyReference.cache
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\obj\Debug\PCRemoteServer.csproj.CoreCompileInputs.cache
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\obj\Debug\PCRemoteServer.exe
+C:\Users\Vaki\Documents\PCRemote\PC\ConsoleApplication\PCRemoteServer\PCRemoteServer\obj\Debug\PCRemoteServer.pdb

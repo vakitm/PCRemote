@@ -6,4 +6,5 @@
     <color name="whiteColor">#FFFFFF</color>
     <color name="connected">#1cc61c</color>
     <color name="connecting">#ff8800</color>
+    <color name="orange">#ff9800</color>
 </resources>

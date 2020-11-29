@@ -1,0 +1,22 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Settings">
+        <ListPreference
+            app:key="startup_activity_selected"
+            app:title="Select default page"
+            app:summary="Specify the page, that opened on startup"
+            app:entries="@array/activity_list_titles"
+            app:entryValues="@array/activity_list_values"
+            app:dialogTitle="Select page" />
+        <EditTextPreference
+            app:key="ipaddress"
+            app:title="IP Address"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="port"
+            app:title="Port"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

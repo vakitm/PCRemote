@@ -12,3 +12,5 @@ C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Rssdp.dll
 C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Rssdp.xml
 C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CopyComplete
 C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\SimpleTCP.dll
+C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.xml

@@ -8,9 +8,10 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     >
+
     <ImageView
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="104dp"
+        android:layout_height="86dp"
         android:layout_marginTop="20dp"
         android:src="@drawable/icon_blue" />
 

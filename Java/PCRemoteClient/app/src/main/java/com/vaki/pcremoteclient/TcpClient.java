@@ -48,7 +48,7 @@ public class TcpClient {
 
                 if (mBufferOut != null) {
                     Log.d(TAG, "Sending: " + message);
-                    mBufferOut.print(message);
+                    mBufferOut.write(message);
                     mBufferOut.flush();
                 }
             }
