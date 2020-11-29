@@ -29,6 +29,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation files('libs\\ssdp-client-2.4.3.jar')
+    implementation 'com.github.medyo:fancybuttons:1.9.1'
+    implementation "com.android.support:appcompat-v7"
     implementation 'androidx.preference:preference:1.1.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

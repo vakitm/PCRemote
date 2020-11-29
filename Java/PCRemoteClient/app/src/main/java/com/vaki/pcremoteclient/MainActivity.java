@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
+
         toggle.syncState();
         fm= getSupportFragmentManager();
         if(Integer.parseInt(SP.getString("startup_activity_selected","1"))==0)
@@ -154,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String key;
         if (event.getKeyCode() == 67)
             key = "bs";
+        else if (event.getKeyCode() == 66)
+            key = "en";
         else if(event.getKeyCode() == 59)
             return super.onKeyDown(keyCode, event);
         else

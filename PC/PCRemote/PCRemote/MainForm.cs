@@ -16,6 +16,7 @@ using SimpleTCP;
 using Newtonsoft.Json;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using Microsoft.VisualBasic.Devices;
 
 namespace PCRemote
 {
@@ -27,8 +28,21 @@ namespace PCRemote
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
+
+        //This is a replacement for Cursor.Position in WinForms
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool SetCursorPos(int x, int y);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern void mouse_event(int dwFlags, int dx, int dy,
+        int cButtons, int dwExtraInfo);
+
+        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        public const int MOUSEEVENTF_LEFTUP = 0x04;
+        public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+        public const int MOUSEEVENTF_RIGHTUP = 0x10;
+
         SimpleTcpServer server;
-        private SsdpDevicePublisher _Publisher;
         int availableRam;
         long down, up;
         int x, y;
@@ -123,7 +137,7 @@ namespace PCRemote
                 }
                 else processJson(message);
             }
-            catch (JsonReaderException i)
+            catch (JsonReaderException)
             {
             }
             //PublishDevice();
@@ -141,6 +155,8 @@ namespace PCRemote
                 case "k":
                     if (json["k"] == "bs")
                         keybd_event((byte)0x08, 0x9e, 0, 0);
+                    else if(json["k"]=="en")
+                        keybd_event((byte)System.Windows.Forms.Keys.Enter, 0x45, 0, 0);
                     else
                     {
                         char key = Convert.ToChar(Convert.ToInt32(json["k"]));
@@ -156,7 +172,6 @@ namespace PCRemote
                         Invoke(new Action(delegate
                         {
 
-                            int step = 20;
                             int xmove, ymove;
                             if (x > Convert.ToInt32(json["x"]))
                                 xmove = x - Convert.ToInt32(json["x"]);
@@ -175,7 +190,23 @@ namespace PCRemote
                         }));
                     });
                     break;
+                case "lc":
+                    LeftMouseClick();
+                    break;
+                case "rc":
+                    RightMouseClick();
+                    break;
             }
+        }
+        public static void LeftMouseClick()
+        {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        }
+        public static void RightMouseClick()
+        {
+            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
         private void MainForm_Load(object sender, EventArgs e)
         {

@@ -46,7 +46,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener  {
         view = rootView.findViewById(R.id.view);
 
 
-        btn = (Button)rootView.findViewById(R.id.button);
+       /* btn = (Button)rootView.findViewById(R.id.button);
         btn.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -57,7 +57,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener  {
 
                 Log.d("asd","clicked");
             }
-        });
+        });*/
 
 
         /*btn = (Button) rootView.findViewById(R.id.butt);
