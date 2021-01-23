@@ -4,61 +4,60 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link PowerFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class PowerFragment extends Fragment {
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.util.HashMap;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+import mehdi.sakout.fancybuttons.FancyButton;
 
+public class PowerFragment extends Fragment implements View.OnClickListener {
+    View rootView;
+    FancyButton btn_shutdown,btn_restart,btn_sleep,btn_hibernate,btn_wakeup;
     public PowerFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PowerFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PowerFragment newInstance(String param1, String param2) {
-        PowerFragment fragment = new PowerFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_power, container, false);
+        rootView =  inflater.inflate(R.layout.fragment_power, container, false);
+        btn_shutdown = (FancyButton) rootView.findViewById(R.id.btn_shutdown);
+        btn_shutdown.setOnClickListener(this);
+        btn_restart = (FancyButton) rootView.findViewById(R.id.btn_restart);
+        btn_restart.setOnClickListener(this);
+        return rootView;
+    }
+    @Override
+    public void onClick(View ve) {
+        FancyButton v = (FancyButton) ve;
+        JSONObject obj = new JSONObject();
+        try {
+        switch (v.getId())
+        {
+            case R.id.btn_shutdown:
+
+                    obj.put("a", "sd");
+                ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                break;
+
+            case R.id.btn_restart:
+                obj.put("a", "rs");
+                ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                break;
+        }
+        } catch (JSONException e) {
+        }
     }
 }

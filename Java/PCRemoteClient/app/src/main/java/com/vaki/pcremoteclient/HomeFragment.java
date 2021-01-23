@@ -28,7 +28,6 @@ import io.resourcepool.ssdp.model.SsdpService;
 import io.resourcepool.ssdp.model.SsdpServiceAnnouncement;
 
 public class HomeFragment extends Fragment implements View.OnClickListener  {
-    Button btn;
     View rootView,view;
     TextView cpu,ram,ping,download,upload;
 

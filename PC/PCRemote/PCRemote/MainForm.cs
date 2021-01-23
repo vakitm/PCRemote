@@ -196,6 +196,12 @@ namespace PCRemote
                 case "rc":
                     RightMouseClick();
                     break;
+                case "sd":
+                    Debug.WriteLine("Shut down");
+                    break;
+                case "rs":
+                    Debug.WriteLine("Restart");
+                    break;
             }
         }
         public static void LeftMouseClick()
@@ -329,6 +335,12 @@ namespace PCRemote
                 //Debug.WriteLine(json);
             }
         }
+
+        private void connectedcount_Click(object sender, EventArgs e)
+        {
+
+        }
+
         public double getCurrentCpuUsage()
         {
             return cpuCounter.NextValue();

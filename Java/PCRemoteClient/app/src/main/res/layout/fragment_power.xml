@@ -3,12 +3,59 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
     tools:context=".PowerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginRight="2dp"
+            android:layout_marginLeft="2dp"
+            android:orientation="horizontal" >
+
+            <mehdi.sakout.fancybuttons.FancyButton
+                android:id="@+id/btn_shutdown"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:padding="10dp"
+                fancy:fb_borderColor="#FFFFFF"
+                fancy:fb_borderWidth="2dp"
+                fancy:fb_defaultColor="@color/colorPrimary"
+                fancy:fb_focusColor="#8cc9f8"
+                fancy:fb_fontIconResource="&#xf011;"
+                fancy:fb_fontIconSize="25sp"
+                fancy:fb_iconPosition="top"
+                fancy:fb_radius="10dp"
+                fancy:fb_text="Shut down"
+                fancy:fb_textColor="#FFFFFF">
+            </mehdi.sakout.fancybuttons.FancyButton>
+            <mehdi.sakout.fancybuttons.FancyButton
+                android:id="@+id/btn_restart"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp"
+                android:padding="10dp"
+                fancy:fb_borderColor="#FFFFFF"
+                fancy:fb_borderWidth="2dp"
+                fancy:fb_defaultColor="@color/colorPrimary"
+                fancy:fb_focusColor="#8cc9f8"
+                fancy:fb_fontIconResource="&#xf0e2;"
+                fancy:fb_fontIconSize="25sp"
+                fancy:fb_iconPosition="top"
+                fancy:fb_radius="10dp"
+                fancy:fb_text="Restart"
+                fancy:fb_textColor="#FFFFFF">
+            </mehdi.sakout.fancybuttons.FancyButton>
+
+        </LinearLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
