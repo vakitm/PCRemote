@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences SP;
     NavigationView navigationView;
     View rootView;
+    AsyncTask ConnectTask;
+    Boolean ConnectTaskCreated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,9 +87,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             changeFragment(SP.getInt("last_used_activity",1));
         else
             changeFragment(Integer.parseInt(SP.getString("startup_activity_selected","1")));
-        AsyncTask ConnectTask = new ConnectTask(this);
-        //new ConnectTask().execute("");
+
+        ConnectTask = new ConnectTask(this);
+        Log.d("MainActivity", "onCreate();");
+
     }
+
+    @Override
+    protected void onDestroy() {
+        mTcpClient.stopClient();
+        ConnectTask.cancel(true);
+        Log.d("MainActivity","OnPause()");
+        super.onDestroy();
+    }
+
     public void changeStatusBar(final int status)
     {
         runOnUiThread(new Runnable() {
@@ -115,6 +128,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         statusbar.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.connecting, null));
                         statusbar_text.setText("Connection Lost, Reconnecting");
                         timerRef.cancel();
+                        break;
+                    case 3:
+                        statusbar.setVisibility(View.VISIBLE);
+                        statusbar.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.connecting, null));
+                        statusbar_text.setText("Set up IP address in the settings first");
+                        break;
+                    case 4:
+                        statusbar.setVisibility(View.VISIBLE);
+                        statusbar.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.connecting, null));
+                        statusbar_text.setText("Bad IP address format, check your settings");
+                        break;
+                    case 5:
+                        statusbar.setVisibility(View.VISIBLE);
+                        statusbar.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.connecting, null));
+                        statusbar_text.setText("Bad port format, check your settings");
                         break;
                 }
             }
@@ -157,6 +185,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             key = "bs";
         else if (event.getKeyCode() == 66)
             key = "en";
+        else if (event.getKeyCode() == 24)
+            key = "vu";
+        else if (event.getKeyCode() == 25)
+            key = "vd";
         else if(event.getKeyCode() == 59)
             return super.onKeyDown(keyCode, event);
         else
@@ -247,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         drawer.closeDrawer(GravityCompat.START);
     }
-
     public class ConnectTask extends AsyncTask<String, String, TcpClient> {
 
         MainActivity mainActivity;

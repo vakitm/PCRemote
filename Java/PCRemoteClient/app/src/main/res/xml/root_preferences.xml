@@ -15,6 +15,7 @@
         <EditTextPreference
             app:key="port"
             app:title="Port"
+            app:defaultValue="1337"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>

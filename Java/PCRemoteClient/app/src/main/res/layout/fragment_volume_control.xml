@@ -3,12 +3,77 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
     tools:context=".VolumeControlFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginRight="2dp"
+        android:layout_marginLeft="2dp"
+        android:orientation="vertical" >
 
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:id="@+id/btn_up"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp"
+            fancy:fb_borderColor="#FFFFFF"
+            fancy:fb_borderWidth="2dp"
+            fancy:fb_defaultColor="@color/orange"
+            fancy:fb_focusColor="#8cc9f8"
+            fancy:fb_fontIconResource="&#xf028;"
+            fancy:fb_fontIconSize="25sp"
+            fancy:fb_iconPosition="top"
+            fancy:fb_radius="10dp"
+            fancy:fb_text="Volume UP"
+            fancy:fb_textColor="#FFFFFF">
+        </mehdi.sakout.fancybuttons.FancyButton>
+
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:id="@+id/btn_down"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:padding="10dp"
+            fancy:fb_borderColor="#FFFFFF"
+            fancy:fb_borderWidth="2dp"
+            fancy:fb_defaultColor="@color/orange"
+            fancy:fb_focusColor="#8cc9f8"
+            fancy:fb_fontIconResource="&#xf027;"
+            fancy:fb_fontIconSize="25sp"
+            fancy:fb_iconPosition="top"
+            fancy:fb_radius="10dp"
+            fancy:fb_text="Volume DOWN"
+            fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+        <mehdi.sakout.fancybuttons.FancyButton
+            android:id="@+id/btn_mute"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:padding="10dp"
+            fancy:fb_borderColor="#FFFFFF"
+            fancy:fb_borderWidth="2dp"
+            fancy:fb_defaultColor="@color/orange"
+            fancy:fb_focusColor="#8cc9f8"
+            fancy:fb_fontIconResource="&#xf026;"
+            fancy:fb_fontIconSize="25sp"
+            fancy:fb_iconPosition="top"
+            fancy:fb_radius="10dp"
+            fancy:fb_text="Mute"
+            fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+    </LinearLayout>
 </FrameLayout>

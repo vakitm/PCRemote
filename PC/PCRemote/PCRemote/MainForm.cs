@@ -42,10 +42,18 @@ namespace PCRemote
         public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         public const int MOUSEEVENTF_RIGHTUP = 0x10;
 
+        private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
+        private const int APPCOMMAND_VOLUME_UP = 0xA0000;
+        private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
+        private const int WM_APPCOMMAND = 0x319;
+
         SimpleTcpServer server;
         int availableRam;
         long down, up;
         int x, y;
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         static extern short VkKeyScan(char ch);
@@ -155,8 +163,12 @@ namespace PCRemote
                 case "k":
                     if (json["k"] == "bs")
                         keybd_event((byte)0x08, 0x9e, 0, 0);
-                    else if(json["k"]=="en")
+                    else if (json["k"] == "en")
                         keybd_event((byte)System.Windows.Forms.Keys.Enter, 0x45, 0, 0);
+                    else if (json["k"] == "vu")
+                        VolumeControl(APPCOMMAND_VOLUME_UP);
+                    else if (json["k"] == "vd")
+                        VolumeControl(APPCOMMAND_VOLUME_DOWN);
                     else
                     {
                         char key = Convert.ToChar(Convert.ToInt32(json["k"]));
@@ -202,7 +214,39 @@ namespace PCRemote
                 case "rs":
                     Debug.WriteLine("Restart");
                     break;
+                case "sl":
+                    Debug.WriteLine("Sleep");
+                    break;
+                case "hb":
+                    Debug.WriteLine("Hibernate");
+                    break;
+                case "lo":
+                    Debug.WriteLine("Log off");
+                    break;
+                case "lk":
+                    Debug.WriteLine("Lock");
+                    break;
+                case "vu":
+                    VolumeControl(APPCOMMAND_VOLUME_UP);
+                    break;
+                case "vd":
+                    VolumeControl(APPCOMMAND_VOLUME_DOWN);
+                    break;
+                case "vm":
+                    VolumeControl(APPCOMMAND_VOLUME_MUTE);
+                    break;
             }
+        }
+        public void VolumeControl(int Iparam)
+        {
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                Invoke(new Action(delegate
+                {
+                    SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)Iparam);
+                }));
+            });
+            
         }
         public static void LeftMouseClick()
         {

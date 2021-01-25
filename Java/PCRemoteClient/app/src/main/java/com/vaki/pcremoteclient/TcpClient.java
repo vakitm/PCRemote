@@ -1,26 +1,34 @@
-package com.vaki.pcremoteclient;
+ package com.vaki.pcremoteclient;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.util.Log;
+import android.util.Patterns;
+
+import androidx.preference.PreferenceManager;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.regex.Pattern;
 
-public class TcpClient {
+ public class TcpClient {
 
     public static final String TAG = TcpClient.class.getSimpleName();
-    public static final String SERVER_IP = "127.0.0.1"; //server IP address
-    public static final int SERVER_PORT = 1337;
+    public static final String SERVER_IP = "192.168.1.2"; //server IP address
     // message to send to the server
     private String mServerMessage;
     // sends message received notifications
     private OnMessageReceived mMessageListener = null;
     // while this is true, the server will continue running
     private boolean mRun = false;
+    private boolean allRun = true;
     // used to send messages
     private PrintWriter mBufferOut;
     // used to read messages from the server
@@ -28,19 +36,15 @@ public class TcpClient {
 
     public MainActivity mainActivity;
 
-    /**
-     * Constructor of the class. OnMessagedReceived listens for the messages received from server
-     */
+    private SharedPreferences SP;
+    private static final Pattern PORT_REGEX  = Pattern.compile(
+            "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$");
+
     public TcpClient(OnMessageReceived listener,MainActivity parent) {
         mMessageListener = listener;
         mainActivity = parent;
+        SP = PreferenceManager.getDefaultSharedPreferences(mainActivity.getBaseContext());
     }
-
-    /**
-     * Sends the message entered by client to the server
-     *
-     * @param message text entered by client
-     */
     public void sendMessage(final String message) {
         Runnable runnable = new Runnable() {
             @Override
@@ -56,10 +60,6 @@ public class TcpClient {
         Thread thread = new Thread(runnable);
         thread.start();
     }
-
-    /**
-     * Close the connection and release the members
-     */
     public void stopClient() {
 
         mRun = false;
@@ -73,21 +73,37 @@ public class TcpClient {
         mBufferIn = null;
         mBufferOut = null;
         mServerMessage = null;
+        allRun= false;
     }
 
     public void run() {
 
         mRun = true;
-        while (true)
+        while (allRun)
         {
             try {
-                //here you must put your computer's IP address.
-                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+
+                while(!SP.contains("ipaddress")) {
+                    mainActivity.changeStatusBar(3);
+                    SystemClock.sleep(500);
+                }
+                while(!Patterns.IP_ADDRESS.matcher(SP.getString("ipaddress","1")).matches()) {
+                    mainActivity.changeStatusBar(4);
+                    SystemClock.sleep(500);
+                }
+                while(!PORT_REGEX.matcher(SP.getString("port","1337")).matches()) {
+                    mainActivity.changeStatusBar(5);
+                    SystemClock.sleep(500);
+                }
+
+
+                InetAddress serverAddr = InetAddress.getByName(SP.getString("ipaddress","1"));
 
                 Log.d("TCP", "C: Connecting...");
 
-                //create a socket to make the connection with the server
-                final Socket socket = new Socket(serverAddr, SERVER_PORT);
+                final Socket socket = new Socket();
+                InetSocketAddress sockAdr = new InetSocketAddress(serverAddr, Integer.parseInt(SP.getString("port","1337")));
+                socket.connect(sockAdr, 5000);
                 Log.d("TCP", "C: Connected");
                 mainActivity.changeStatusBar(1);
                 try {
@@ -114,8 +130,6 @@ public class TcpClient {
                     Log.e("TCP", "S: Error2", e);
 
                 } finally {
-                    //the socket must be closed. It is not possible to reconnect to this socket
-                    // after it is closed, which means a new socket instance has to be created.
                     socket.close();
                     mainActivity.changeStatusBar(2);
                     Log.d("TCP", "C: Disconnected");

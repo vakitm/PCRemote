@@ -183,7 +183,7 @@
             this.leftbar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.leftbar.Location = new System.Drawing.Point(0, 30);
             this.leftbar.Name = "leftbar";
-            this.leftbar.Size = new System.Drawing.Size(202, 425);
+            this.leftbar.Size = new System.Drawing.Size(144, 425);
             this.leftbar.TabIndex = 70;
             // 
             // MainForm
