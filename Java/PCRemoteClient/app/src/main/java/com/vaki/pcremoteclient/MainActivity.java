@@ -33,8 +33,17 @@ import com.google.android.material.navigation.NavigationView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import io.resourcepool.ssdp.client.SsdpClient;
 import io.resourcepool.ssdp.model.DiscoveryListener;
@@ -58,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     AsyncTask ConnectTask;
     Boolean ConnectTaskCreated = false;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         statusbar = (LinearLayout) findViewById(R.id.statusbar);
-        statusbar_text = (TextView)findViewById(R.id.statusbar_text) ;
+        statusbar_text = (TextView) findViewById(R.id.statusbar_text);
 
         currentFragment = 1;
 
@@ -82,14 +92,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
 
         toggle.syncState();
-        fm= getSupportFragmentManager();
-        if(Integer.parseInt(SP.getString("startup_activity_selected","1"))==0)
-            changeFragment(SP.getInt("last_used_activity",1));
+        fm = getSupportFragmentManager();
+        if (Integer.parseInt(SP.getString("startup_activity_selected", "1")) == 0)
+            changeFragment(SP.getInt("last_used_activity", 1));
         else
-            changeFragment(Integer.parseInt(SP.getString("startup_activity_selected","1")));
+            changeFragment(Integer.parseInt(SP.getString("startup_activity_selected", "1")));
 
         ConnectTask = new ConnectTask(this);
         Log.d("MainActivity", "onCreate();");
+
 
     }
 
@@ -97,18 +108,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         mTcpClient.stopClient();
         ConnectTask.cancel(true);
-        Log.d("MainActivity","OnPause()");
+        Log.d("MainActivity", "OnPause()");
         super.onDestroy();
     }
 
-    public void changeStatusBar(final int status)
-    {
+    public void changeStatusBar(final int status) {
         runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                switch(status)
-                {
+                switch (status) {
                     case 1:
                         statusbar.setVisibility(View.VISIBLE);
                         statusbar.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.connected, null));
@@ -149,19 +158,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
     }
-    final Handler handler = new Handler(){
+
+    final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if(msg.what==1)
-            {
+            if (msg.what == 1) {
                 try {
                     statusbar.setVisibility(View.GONE);
+                } catch (Exception e) {
                 }
-                catch (Exception e){}
             }
             super.handleMessage(msg);
         }
     };
+
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -189,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             key = "vu";
         else if (event.getKeyCode() == 25)
             key = "vd";
-        else if(event.getKeyCode() == 59)
+        else if (event.getKeyCode() == 59)
             return super.onKeyDown(keyCode, event);
         else
             key = String.valueOf(event.getUnicodeChar());
@@ -200,18 +210,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("onKeyDown", event.getKeyCode()+":" +event.getUnicodeChar());
+        Log.d("onKeyDown", event.getKeyCode() + ":" + event.getUnicodeChar());
         return super.onKeyDown(keyCode, event);
     }
-    public void closeSoftKeyb()
-    {
+
+    public void closeSoftKeyb() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         //imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-        imm.hideSoftInputFromWindow(findViewById(R.id.drawer_layout).getWindowToken(),0);
+        imm.hideSoftInputFromWindow(findViewById(R.id.drawer_layout).getWindowToken(), 0);
     }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-       closeSoftKeyb();
+        closeSoftKeyb();
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
                 changeFragment(1);
@@ -232,61 +243,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void changeFragment(int id)
-    {
+
+    public void changeFragment(int id) {
         SharedPreferences.Editor editor = SP.edit();
         switch (id) {
             case 1:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                currentFragment=1;
+                currentFragment = 1;
                 navigationView.setCheckedItem(R.id.nav_home);
-                editor.putInt("last_used_activity",1 );
+                editor.putInt("last_used_activity", 1);
                 editor.commit();
                 break;
             case 2:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new InputFragment()).commit();
-                currentFragment=2;
+                currentFragment = 2;
                 navigationView.setCheckedItem(R.id.nav_input);
-                editor.putInt("last_used_activity",2 );
+                editor.putInt("last_used_activity", 2);
                 editor.commit();
                 break;
             case 3:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new VolumeControlFragment()).commit();
-                currentFragment=3;
+                currentFragment = 3;
                 navigationView.setCheckedItem(R.id.nav_volume);
-                editor.putInt("last_used_activity",3 );
+                editor.putInt("last_used_activity", 3);
                 editor.commit();
                 break;
             case 4:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PowerFragment()).commit();
-                currentFragment=4;
+                currentFragment = 4;
                 navigationView.setCheckedItem(R.id.nav_power);
-                editor.putInt("last_used_activity",4 );
+                editor.putInt("last_used_activity", 4);
                 editor.commit();
                 break;
             case 5:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SettingsFragment()).commit();
-                currentFragment=5;
+                currentFragment = 5;
                 navigationView.setCheckedItem(R.id.nav_settings);
                 break;
             default:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-                currentFragment=1;
+                currentFragment = 1;
                 navigationView.setCheckedItem(R.id.nav_home);
-                editor.putInt("last_used_activity",1 );
+                editor.putInt("last_used_activity", 1);
                 editor.commit();
                 break;
         }
         drawer.closeDrawer(GravityCompat.START);
     }
+
     public class ConnectTask extends AsyncTask<String, String, TcpClient> {
 
         MainActivity mainActivity;
-        public ConnectTask(MainActivity activity)
-        {
-            mainActivity =activity;
+
+        public ConnectTask(MainActivity activity) {
+            mainActivity = activity;
             this.execute("");
         }
+
         @Override
         protected TcpClient doInBackground(String... message) {
 
@@ -298,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     //this method calls the onProgressUpdate
                     publishProgress(message);
                 }
-            },mainActivity);
+            }, mainActivity);
             mTcpClient.run();
 
             return null;
@@ -308,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
             Log.d("TCP Client", "response " + values[0]);
-            if(currentFragment==1) {
+            if (currentFragment == 1) {
                 HomeFragment fragm = (HomeFragment) fm.findFragmentById(R.id.fragment_container);
                 Message msg = fragm.handler.obtainMessage();
                 msg.what = 1;

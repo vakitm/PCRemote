@@ -15,7 +15,7 @@ import mehdi.sakout.fancybuttons.FancyButton;
 
 public class VolumeControlFragment extends Fragment implements View.OnClickListener {
     View rootView;
-    FancyButton btn_up,btn_down,btn_mute;
+    FancyButton btn_up, btn_down, btn_mute;
 
     public VolumeControlFragment() {
     }
@@ -28,12 +28,12 @@ public class VolumeControlFragment extends Fragment implements View.OnClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView =  inflater.inflate(R.layout.fragment_volume_control, container, false);
+        rootView = inflater.inflate(R.layout.fragment_volume_control, container, false);
         btn_up = rootView.findViewById(R.id.btn_up);
         btn_up.setOnClickListener(this);
         btn_down = rootView.findViewById(R.id.btn_down);
         btn_down.setOnClickListener(this);
-        btn_mute =  rootView.findViewById(R.id.btn_mute);
+        btn_mute = rootView.findViewById(R.id.btn_mute);
         btn_mute.setOnClickListener(this);
         return rootView;
     }
@@ -43,8 +43,7 @@ public class VolumeControlFragment extends Fragment implements View.OnClickListe
         FancyButton v = (FancyButton) ve;
         JSONObject obj = new JSONObject();
         try {
-            switch (v.getId())
-            {
+            switch (v.getId()) {
                 case R.id.btn_up:
                     obj.put("a", "vu");
                     ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());

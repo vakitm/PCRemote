@@ -1,4 +1,4 @@
- package com.vaki.pcremoteclient;
+package com.vaki.pcremoteclient;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -18,7 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.regex.Pattern;
 
- public class TcpClient {
+public class TcpClient {
 
     public static final String TAG = TcpClient.class.getSimpleName();
     public static final String SERVER_IP = "192.168.1.2"; //server IP address
@@ -37,14 +37,15 @@ import java.util.regex.Pattern;
     public MainActivity mainActivity;
 
     private SharedPreferences SP;
-    private static final Pattern PORT_REGEX  = Pattern.compile(
+    private static final Pattern PORT_REGEX = Pattern.compile(
             "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$");
 
-    public TcpClient(OnMessageReceived listener,MainActivity parent) {
+    public TcpClient(OnMessageReceived listener, MainActivity parent) {
         mMessageListener = listener;
         mainActivity = parent;
         SP = PreferenceManager.getDefaultSharedPreferences(mainActivity.getBaseContext());
     }
+
     public void sendMessage(final String message) {
         Runnable runnable = new Runnable() {
             @Override
@@ -60,6 +61,7 @@ import java.util.regex.Pattern;
         Thread thread = new Thread(runnable);
         thread.start();
     }
+
     public void stopClient() {
 
         mRun = false;
@@ -73,36 +75,35 @@ import java.util.regex.Pattern;
         mBufferIn = null;
         mBufferOut = null;
         mServerMessage = null;
-        allRun= false;
+        allRun = false;
     }
 
     public void run() {
 
         mRun = true;
-        while (allRun)
-        {
+        while (allRun) {
             try {
 
-                while(!SP.contains("ipaddress")) {
+                while (!SP.contains("ipaddress")) {
                     mainActivity.changeStatusBar(3);
                     SystemClock.sleep(500);
                 }
-                while(!Patterns.IP_ADDRESS.matcher(SP.getString("ipaddress","1")).matches()) {
+                while (!Patterns.IP_ADDRESS.matcher(SP.getString("ipaddress", "1")).matches()) {
                     mainActivity.changeStatusBar(4);
                     SystemClock.sleep(500);
                 }
-                while(!PORT_REGEX.matcher(SP.getString("port","1337")).matches()) {
+                while (!PORT_REGEX.matcher(SP.getString("port", "1337")).matches()) {
                     mainActivity.changeStatusBar(5);
                     SystemClock.sleep(500);
                 }
 
 
-                InetAddress serverAddr = InetAddress.getByName(SP.getString("ipaddress","1"));
+                InetAddress serverAddr = InetAddress.getByName(SP.getString("ipaddress", "1"));
 
                 Log.d("TCP", "C: Connecting...");
 
                 final Socket socket = new Socket();
-                InetSocketAddress sockAdr = new InetSocketAddress(serverAddr, Integer.parseInt(SP.getString("port","1337")));
+                InetSocketAddress sockAdr = new InetSocketAddress(serverAddr, Integer.parseInt(SP.getString("port", "1337")));
                 socket.connect(sockAdr, 5000);
                 Log.d("TCP", "C: Connected");
                 mainActivity.changeStatusBar(1);
@@ -120,8 +121,7 @@ import java.util.regex.Pattern;
                         if (mServerMessage != null && mMessageListener != null) {
                             //call the method messageReceived from MyActivity class
                             mMessageListener.messageReceived(mServerMessage);
-                        }
-                        else if(mServerMessage==null) {
+                        } else if (mServerMessage == null) {
                             throw new Exception();
                         }
                     }

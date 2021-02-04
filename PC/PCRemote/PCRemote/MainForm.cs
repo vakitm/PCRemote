@@ -1,22 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Rssdp;
 using SimpleTCP;
 using Newtonsoft.Json;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using Microsoft.VisualBasic.Devices;
+using Microsoft.Win32;
+using System.Net;
 
 namespace PCRemote
 {
@@ -24,19 +21,6 @@ namespace PCRemote
     {
         PerformanceCounter cpuCounter;
         PerformanceCounter ramCounter;
-        [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
-        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-        [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
-        public static extern bool ReleaseCapture();
-
-        //This is a replacement for Cursor.Position in WinForms
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        static extern bool SetCursorPos(int x, int y);
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        public static extern void mouse_event(int dwFlags, int dx, int dy,
-        int cButtons, int dwExtraInfo);
-
         public const int MOUSEEVENTF_LEFTDOWN = 0x02;
         public const int MOUSEEVENTF_LEFTUP = 0x04;
         public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
@@ -48,9 +32,28 @@ namespace PCRemote
         private const int WM_APPCOMMAND = 0x319;
 
         SimpleTcpServer server;
+        bool connectEnabled = true;
+        List<TcpClient> connectedClients = new List<TcpClient>();
         int availableRam;
         long down, up;
         int x, y;
+        int port = 1337;
+
+        [DllImport("Powrprof.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern bool SetSuspendState(bool hiberate, bool forceCritical, bool disableWakeEvent);
+        [DllImport("user32")]
+        public static extern void LockWorkStation();
+        [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
+        public static extern bool ReleaseCapture();
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool SetCursorPos(int x, int y);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern void mouse_event(int dwFlags, int dx, int dy,
+        int cButtons, int dwExtraInfo);
 
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
@@ -59,6 +62,9 @@ namespace PCRemote
         static extern short VkKeyScan(char ch);
         [DllImport("user32.dll")]
         public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool ExitWindowsEx(uint uFlags, uint dwReason);
         public MainForm()
         {
             InitializeComponent();
@@ -77,35 +83,65 @@ namespace PCRemote
             restart.Click += new EventHandler(contextmenu_click);
             quit.Click += new EventHandler(contextmenu_click);
 
+            startServer();
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+                    var Server = new UdpClient(8888);
+                while (true)
+                {
+                    var ClientEp = new IPEndPoint(IPAddress.Any, 0);
+                    var ClientRequestData = Server.Receive(ref ClientEp);
+                    var ClientRequest = Encoding.ASCII.GetString(ClientRequestData);
+
+                    Console.WriteLine("Recived {0} from {1}, sending response", ClientRequest, ClientEp.Address.ToString());
+                    var ResponseData = Encoding.ASCII.GetBytes("PCREMOTE_DISCOVER_RESPONSE:"+port);
+                    Server.Send(ResponseData, ResponseData.Length, ClientEp);
+                }
+            }).Start();
+
+            SystemEvents.PowerModeChanged += OnPowerModeChanged;
+            x = 0; y = 0;
+        }
+        private void stopServer()
+        {
+            foreach (TcpClient tc in connectedClients)
+                tc.Close();
+
+            server.Stop();
+        }
+
+        private void startServer()
+        {
             server = new SimpleTcpServer();
             server.Delimiter = 0x13;
             server.DataReceived += Server_DataReceived;
             server.ClientConnected += Server_ClientConnected;
             server.ClientDisconnected += Server_ClientDisconnected;
-
             server.StringEncoder = Encoding.UTF8;
-            server.Start(System.Net.IPAddress.Parse("0.0.0.0"), 1337);
-            x = 0; y = 0;
+            server.Start(System.Net.IPAddress.Parse("0.0.0.0"), port);
         }
-        public void PublishDevice()
+
+        private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
-            // As this is a sample, we are only setting the minimum required properties.
-            var deviceDefinition = new SsdpRootDevice()
+            switch (e.Mode)
             {
-                CacheLifetime = TimeSpan.FromMinutes(30), //How long SSDP clients can cache this info.
-                Location = new Uri("http://mydevice/descriptiondocument.xml"), // Must point to the URL that serves your devices UPnP description document. 
-                DeviceTypeNamespace = "my-namespace",
-                DeviceType = "MyCustomDevice",
-                FriendlyName = "Custom Device 1",
-                Manufacturer = "Me",
-                ModelName = "MyCustomDevice",
-                Uuid = "asd" // This must be a globally unique value that survives reboots etc. Get from storage or embedded hardware etc.
-            };
+                case PowerModes.Suspend:
+                    break;
+                case PowerModes.Resume:
+                    startServer();
+                    break;
+            }
+
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
         }
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
 
             Debug.WriteLine("Disconnected");
+            connectedClients.Remove(e);
             connectedcount.Invoke((MethodInvoker)delegate
             {
                 connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
@@ -115,10 +151,19 @@ namespace PCRemote
         private void Server_ClientConnected(object sender, TcpClient e)
         {
             Debug.WriteLine("Connected");
-            connectedcount.Invoke((MethodInvoker)delegate
+            if (!connectEnabled)
             {
-                connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
-            });
+                Debug.WriteLine("Connection disabled, so closed connection for new client.");
+                e.Close();
+            }
+            else
+            {
+                connectedClients.Add(e);
+                connectedcount.Invoke((MethodInvoker)delegate
+                {
+                    connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
+                });
+            }
         }
 
         private void Server_DataReceived(object sender, SimpleTCP.Message e)
@@ -148,7 +193,6 @@ namespace PCRemote
             catch (JsonReaderException)
             {
             }
-            //PublishDevice();
         }
         private void processJson(string message)
         {
@@ -210,20 +254,40 @@ namespace PCRemote
                     break;
                 case "sd":
                     Debug.WriteLine("Shut down");
+                    Process.Start("shutdown", "/s /t 0");
                     break;
                 case "rs":
                     Debug.WriteLine("Restart");
+                    Process.Start("shutdown.exe", "/r /t 0");
                     break;
                 case "sl":
                     Debug.WriteLine("Sleep");
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            stopServer();
+                            SetSuspendState(false, true, true);
+                        }));
+                    });
                     break;
                 case "hb":
                     Debug.WriteLine("Hibernate");
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            stopServer();
+                            SetSuspendState(true, true, true);
+                        }));
+                    });
                     break;
                 case "lo":
                     Debug.WriteLine("Log off");
+                    ExitWindowsEx(0, 0);
                     break;
                 case "lk":
+                    LockWorkStation();
                     Debug.WriteLine("Lock");
                     break;
                 case "vu":
@@ -326,12 +390,6 @@ namespace PCRemote
             this.Hide();
         }
         #endregion
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            server.Broadcast("werikci" + Environment.NewLine);
-        }
-
         private void statusTimer_Tick(object sender, EventArgs e)
         {
             int ping = 0;
@@ -345,8 +403,6 @@ namespace PCRemote
                    && x.NetworkInterfaceType != NetworkInterfaceType.Tunnel
                    && x.OperationalStatus == OperationalStatus.Up
                    && x.Name.StartsWith("vEthernet") == false);
-                //NetworkInterface ni = networks[0];
-
 
                 Ping myPing = new Ping();
 
@@ -361,23 +417,26 @@ namespace PCRemote
                 upload = (ni.GetIPv4Statistics().BytesSent - up) / 1024 / 5; up = ni.GetIPv4Statistics().BytesSent;
             }
             catch { networkstatus = false; }
-
-            if (server.ConnectedClientsCount != 0)
+            try
             {
-                CheckIn checkin = new CheckIn
+                if (server.ConnectedClientsCount != 0)
                 {
-                    task = "checkin",
-                    cpu = Convert.ToInt32(getCurrentCpuUsage()),
-                    ram = Convert.ToInt32(getRAMUsage()),
-                    up = Convert.ToInt32(upload),
-                    down = Convert.ToInt32(download),
-                    ping = ping,
-                    network = networkstatus
-                };
-                string json = JsonConvert.SerializeObject(checkin, Formatting.None);
-                server.Broadcast(json + Environment.NewLine);
-                //Debug.WriteLine(json);
+                    CheckIn checkin = new CheckIn
+                    {
+                        task = "checkin",
+                        cpu = Convert.ToInt32(getCurrentCpuUsage()),
+                        ram = Convert.ToInt32(getRAMUsage()),
+                        up = Convert.ToInt32(upload),
+                        down = Convert.ToInt32(download),
+                        ping = ping,
+                        network = networkstatus
+                    };
+                    string json = JsonConvert.SerializeObject(checkin, Formatting.None);
+                    server.Broadcast(json + Environment.NewLine);
+                    //Debug.WriteLine(json);
+                }
             }
+            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
         }
 
         private void connectedcount_Click(object sender, EventArgs e)

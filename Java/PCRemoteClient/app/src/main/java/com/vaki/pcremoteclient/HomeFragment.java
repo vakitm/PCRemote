@@ -27,9 +27,9 @@ import io.resourcepool.ssdp.model.SsdpRequest;
 import io.resourcepool.ssdp.model.SsdpService;
 import io.resourcepool.ssdp.model.SsdpServiceAnnouncement;
 
-public class HomeFragment extends Fragment implements View.OnClickListener  {
-    View rootView,view;
-    TextView cpu,ram,ping,download,upload;
+public class HomeFragment extends Fragment implements View.OnClickListener {
+    View rootView, view;
+    TextView cpu, ram, ping, download, upload;
 
 
     @Override
@@ -77,24 +77,25 @@ public class HomeFragment extends Fragment implements View.OnClickListener  {
 
             }
         };*/
-        Log.d("Homefragment","OnCreateView()");
+        Log.d("Homefragment", "OnCreateView()");
         return rootView;
     }
+
     @Override
     public void onClick(View view) {
-        Log.d("HomeFragment","clicked");
+        Log.d("HomeFragment", "clicked");
         ((MainActivity) getActivity()).mTcpClient.sendMessage("asd");
         SsdpClient client = SsdpClient.create();
         DiscoveryRequest all = SsdpRequest.discoverAll();
         client.discoverServices(all, new DiscoveryListener() {
             @Override
             public void onServiceDiscovered(SsdpService service) {
-                Log.d("SSDP","Found service: " + service);
+                Log.d("SSDP", "Found service: " + service);
             }
 
             @Override
             public void onServiceAnnouncement(SsdpServiceAnnouncement announcement) {
-                Log.d("SSDP","Service announced something: " + announcement);
+                Log.d("SSDP", "Service announced something: " + announcement);
             }
 
             @Override
@@ -104,21 +105,22 @@ public class HomeFragment extends Fragment implements View.OnClickListener  {
         });
 
     }
-    final Handler handler = new Handler(){
+
+    final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.d("handler", "get " +msg.obj);
-            if(msg.what==1)
-            {
+            Log.d("handler", "get " + msg.obj);
+            if (msg.what == 1) {
                 try {
                     JSONObject jObject = new JSONObject((String) msg.obj);
-                    cpu.setText("CPU: "+jObject.getInt("cpu")+"%");
-                    ram.setText("RAM: "+jObject.getInt("ram")+"%");
-                    ping.setText("Ping: "+jObject.getInt("ping")+" ms");
-                    download.setText("Download: "+jObject.getInt("down")+" KB/sec");
-                    upload.setText("Upload: "+jObject.getInt("up")+" KB/sec");
+                    cpu.setText("CPU: " + jObject.getInt("cpu") + "%");
+                    ram.setText("RAM: " + jObject.getInt("ram") + "%");
+                    ping.setText("Ping: " + jObject.getInt("ping") + " ms");
+                    download.setText("Download: " + jObject.getInt("down") + " KB/sec");
+                    upload.setText("Upload: " + jObject.getInt("up") + " KB/sec");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                catch (Exception e){ e.printStackTrace();}
             }
             super.handleMessage(msg);
         }

@@ -45,6 +45,7 @@
             this.statusTimer = new System.Windows.Forms.Timer(this.components);
             this.connectedcount = new System.Windows.Forms.Label();
             this.leftbar = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.notifyIconMain_menu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.exit_icon)).BeginInit();
@@ -186,12 +187,23 @@
             this.leftbar.Size = new System.Drawing.Size(144, 425);
             this.leftbar.TabIndex = 70;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(418, 168);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 71;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(46)))), ((int)(((byte)(59)))));
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.connectedcount);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.exit_icon);
@@ -229,6 +241,7 @@
         private System.Windows.Forms.Timer statusTimer;
         private System.Windows.Forms.Label connectedcount;
         private System.Windows.Forms.Label leftbar;
+        private System.Windows.Forms.Button button1;
     }
 }
 

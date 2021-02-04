@@ -25,16 +25,15 @@ public class InputFragment extends Fragment {
     View rootView;
     FancyButton btn;
     Toast mToast;
-    long click[] = {0,0,0};
-    long lastmovepos[] = {0,0};
+    long click[] = {0, 0, 0};
+    long lastmovepos[] = {0, 0};
     boolean hold = false;
     Handler mHander = new Handler();
     Runnable runObj = new Runnable() {
         @Override
         public void run() {
-            Log.d("postdelay",Math.sqrt(Math.pow(click[1] - lastmovepos[0], 2) + Math.pow(click[2] - lastmovepos[1], 2))+"");
-            if(Math.sqrt(Math.pow(click[1] - lastmovepos[0], 2) + Math.pow(click[2] - lastmovepos[1], 2)) < 50&&hold)
-            {
+            Log.d("postdelay", Math.sqrt(Math.pow(click[1] - lastmovepos[0], 2) + Math.pow(click[2] - lastmovepos[1], 2)) + "");
+            if (Math.sqrt(Math.pow(click[1] - lastmovepos[0], 2) + Math.pow(click[2] - lastmovepos[1], 2)) < 50 && hold) {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("a", "rc");
@@ -46,6 +45,7 @@ public class InputFragment extends Fragment {
         }
     };
     int c = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,18 +58,14 @@ public class InputFragment extends Fragment {
         mToast = Toast.makeText(getContext(), "", Toast.LENGTH_LONG);
         rootView = inflater.inflate(R.layout.fragment_input, container, false);
         btn = rootView.findViewById(R.id.btn_download);
-        btn.setOnClickListener(new View.OnClickListener()
-        {
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 InputMethodManager im = (InputMethodManager) getActivity().getSystemService(getContext().INPUT_METHOD_SERVICE);
                 if (!im.isAcceptingText()) {
 
                     im.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                }
-                else
-                {
+                } else {
                     ((MainActivity) getActivity()).closeSoftKeyb();
                 }
             }
@@ -87,8 +83,8 @@ public class InputFragment extends Fragment {
                 try {
                     switch (eventaction) {
                         case MotionEvent.ACTION_DOWN:
-                            mToast.setText("ACTION_DOWN AT COORDS " + "X: " + X + " Y: " + Y);
-                            mToast.show();
+                            //mToast.setText("ACTION_DOWN AT COORDS " + "X: " + X + " Y: " + Y);
+                            //mToast.show();
                             obj.put("a", "d");
                             obj.put("x", X);
                             obj.put("y", Y);
@@ -99,19 +95,13 @@ public class InputFragment extends Fragment {
                             lastmovepos[1] = Y;
                             hold = true;
                             ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
-                            /*AsyncTask.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Thread.sleep
-                                }
-                            });*/
                             mHander.postDelayed(runObj, 1500);
                             break;
 
                         case MotionEvent.ACTION_MOVE:
                             if (c % 3 == 0) {
-                                mToast.setText("MOVE " + "X: " + X + " Y: " + Y);
-                                mToast.show();
+                                //mToast.setText("MOVE " + "X: " + X + " Y: " + Y);
+                                //mToast.show();
                                 obj.put("a", "m");
                                 obj.put("x", X);
                                 obj.put("y", Y);
@@ -123,48 +113,25 @@ public class InputFragment extends Fragment {
                             c++;
                             break;
                         case MotionEvent.ACTION_UP:
-                            mToast.setText("ACTION_UP " + "X: " + X + " Y: " + Y);
-                            mToast.show();
+                            //mToast.setText("ACTION_UP " + "X: " + X + " Y: " + Y);
+                            //mToast.show();
                             mHander.removeCallbacks(runObj);
                             hold = false;
-                                    if (System.currentTimeMillis() - click[0] < 500 && Math.sqrt(Math.pow(click[1] - X, 2) + Math.pow(click[2] - Y, 2)) < 20)
-                                    {
-                                        obj.put("a", "lc");
-                                        ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
-                                    }
-                                    else
-                                    {
-                                        obj.put("a", "u");
-                                        obj.put("x", X);
-                                        obj.put("y", Y);
-                                        ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
-                                        c = 0;
-                                    }
+                            if (System.currentTimeMillis() - click[0] < 500 && Math.sqrt(Math.pow(click[1] - X, 2) + Math.pow(click[2] - Y, 2)) < 20) {
+                                obj.put("a", "lc");
+                                ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                            } else {
+                                obj.put("a", "u");
+                                obj.put("x", X);
+                                obj.put("y", Y);
+                                ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                                c = 0;
+                            }
                             break;
                     }
                 } catch (JSONException e) {
-
                 }
-                /*switch (eventaction) {
-                    case MotionEvent.ACTION_DOWN:
-                        Toast.makeText(getActivity(), "ACTION_DOWN AT COORDS "+"X: "+X+" Y: "+Y, Toast.LENGTH_SHORT).show();
-                        ((MainActivity) getActivity()).mTcpClient.sendMessage("ACTION_DOWN AT COORDS "+"X: "+X+" Y: "+Y);
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        Toast.makeText(getActivity(), "MOVE "+"X: "+X+" Y: "+Y, Toast.LENGTH_SHORT).show();
-                        ((MainActivity) getActivity()).mTcpClient.sendMessage("MOVE "+"X: "+X+" Y: "+Y);
-                        break;
-                    case MotionEvent.ACTION_SCROLL:
-                        ((MainActivity) getActivity()).mTcpClient.sendMessage("SCROLL");
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        Toast.makeText(getActivity(), "ACTION_UP "+"X: "+X+" Y: "+Y, Toast.LENGTH_SHORT).show();
-                        ((MainActivity) getActivity()).mTcpClient.sendMessage("ACTION_UP "+"X: "+X+" Y: "+Y);
-                        break;
-                }*/
                 return true;
-
             }
         });
         return rootView;

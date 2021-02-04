@@ -17,6 +17,11 @@
             app:title="Port"
             app:defaultValue="1337"
             app:useSimpleSummaryProvider="true" />
+        <Preference
+            app:title="Find server"
+            app:key="autodiscovery"
+            app:summary="Automatic server discovery"
+            />
 
     </PreferenceCategory>
 
