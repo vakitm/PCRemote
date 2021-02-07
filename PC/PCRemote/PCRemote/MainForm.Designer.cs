@@ -40,15 +40,26 @@
             this.restart = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.quit = new System.Windows.Forms.ToolStripMenuItem();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.exit_icon = new System.Windows.Forms.PictureBox();
             this.statusTimer = new System.Windows.Forms.Timer(this.components);
             this.connectedcount = new System.Windows.Forms.Label();
             this.leftbar = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.autostart = new System.Windows.Forms.CheckBox();
+            this.minimize = new System.Windows.Forms.CheckBox();
+            this.portNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.statusBar = new System.Windows.Forms.Label();
+            this.statusText = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.autodiscoveryNumeric = new System.Windows.Forms.NumericUpDown();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.notifyIconMain_menu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.exit_icon)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.portNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.autodiscoveryNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // notifyIconMain
@@ -129,19 +140,6 @@
             this.quit.Size = new System.Drawing.Size(197, 22);
             this.quit.Text = "Quit";
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(95)))), ((int)(((byte)(180)))));
-            this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.pictureBox1.Image = global::PCRemote.Properties.Resources.logo;
-            this.pictureBox1.InitialImage = null;
-            this.pictureBox1.Location = new System.Drawing.Point(12, 33);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(100, 100);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 68;
-            this.pictureBox1.TabStop = false;
-            // 
             // exit_icon
             // 
             this.exit_icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
@@ -176,7 +174,6 @@
             this.connectedcount.Size = new System.Drawing.Size(124, 17);
             this.connectedcount.TabIndex = 69;
             this.connectedcount.Text = "Connected clients: 0";
-            this.connectedcount.Click += new System.EventHandler(this.connectedcount_Click);
             // 
             // leftbar
             // 
@@ -184,26 +181,174 @@
             this.leftbar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.leftbar.Location = new System.Drawing.Point(0, 30);
             this.leftbar.Name = "leftbar";
-            this.leftbar.Size = new System.Drawing.Size(144, 425);
+            this.leftbar.Size = new System.Drawing.Size(144, 361);
             this.leftbar.TabIndex = 70;
             // 
-            // button1
+            // autostart
             // 
-            this.button1.Location = new System.Drawing.Point(418, 168);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 71;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.autostart.AutoSize = true;
+            this.autostart.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.autostart.ForeColor = System.Drawing.SystemColors.Window;
+            this.autostart.Location = new System.Drawing.Point(170, 78);
+            this.autostart.Name = "autostart";
+            this.autostart.Size = new System.Drawing.Size(247, 20);
+            this.autostart.TabIndex = 71;
+            this.autostart.Text = "Run PCRemote when Windows starts";
+            this.autostart.UseVisualStyleBackColor = true;
+            this.autostart.CheckedChanged += new System.EventHandler(this.autostart_CheckedChanged);
+            // 
+            // minimize
+            // 
+            this.minimize.AutoSize = true;
+            this.minimize.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.minimize.ForeColor = System.Drawing.SystemColors.Window;
+            this.minimize.Location = new System.Drawing.Point(170, 113);
+            this.minimize.Name = "minimize";
+            this.minimize.Size = new System.Drawing.Size(164, 20);
+            this.minimize.TabIndex = 72;
+            this.minimize.Text = "Minimize to tray on start";
+            this.minimize.UseVisualStyleBackColor = true;
+            this.minimize.CheckedChanged += new System.EventHandler(this.minimize_CheckedChanged);
+            // 
+            // portNumeric
+            // 
+            this.portNumeric.Location = new System.Drawing.Point(250, 146);
+            this.portNumeric.Maximum = new decimal(new int[] {
+            65565,
+            0,
+            0,
+            0});
+            this.portNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.portNumeric.Name = "portNumeric";
+            this.portNumeric.Size = new System.Drawing.Size(76, 20);
+            this.portNumeric.TabIndex = 73;
+            this.portNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.SystemColors.Window;
+            this.label1.Location = new System.Drawing.Point(167, 147);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(77, 16);
+            this.label1.TabIndex = 74;
+            this.label1.Text = "Server port:";
+            // 
+            // statusBar
+            // 
+            this.statusBar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(198)))), ((int)(((byte)(28)))));
+            this.statusBar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.statusBar.Location = new System.Drawing.Point(144, 30);
+            this.statusBar.Name = "statusBar";
+            this.statusBar.Size = new System.Drawing.Size(656, 23);
+            this.statusBar.TabIndex = 75;
+            // 
+            // statusText
+            // 
+            this.statusText.AutoSize = true;
+            this.statusText.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(198)))), ((int)(((byte)(28)))));
+            this.statusText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.statusText.ForeColor = System.Drawing.SystemColors.Window;
+            this.statusText.Location = new System.Drawing.Point(353, 33);
+            this.statusText.Name = "statusText";
+            this.statusText.Size = new System.Drawing.Size(216, 16);
+            this.statusText.TabIndex = 76;
+            this.statusText.Text = "Server is running on xxx.xxx.x.x:1337";
+            this.statusText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ForeColor = System.Drawing.SystemColors.Window;
+            this.label3.Location = new System.Drawing.Point(336, 147);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(43, 16);
+            this.label3.TabIndex = 77;
+            this.label3.Text = "(TCP)";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.SystemColors.Window;
+            this.label4.Location = new System.Drawing.Point(167, 179);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(196, 16);
+            this.label4.TabIndex = 78;
+            this.label4.Text = "Automatic server discovery port";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.SystemColors.Window;
+            this.label5.Location = new System.Drawing.Point(455, 180);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(45, 16);
+            this.label5.TabIndex = 80;
+            this.label5.Text = "(UDP)";
+            // 
+            // autodiscoveryNumeric
+            // 
+            this.autodiscoveryNumeric.Location = new System.Drawing.Point(369, 179);
+            this.autodiscoveryNumeric.Maximum = new decimal(new int[] {
+            65565,
+            0,
+            0,
+            0});
+            this.autodiscoveryNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.autodiscoveryNumeric.Name = "autodiscoveryNumeric";
+            this.autodiscoveryNumeric.Size = new System.Drawing.Size(76, 20);
+            this.autodiscoveryNumeric.TabIndex = 79;
+            this.autodiscoveryNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(95)))), ((int)(((byte)(180)))));
+            this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Default;
+            this.pictureBox1.Image = global::PCRemote.Properties.Resources.logo;
+            this.pictureBox1.InitialImage = null;
+            this.pictureBox1.Location = new System.Drawing.Point(12, 33);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(100, 100);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 68;
+            this.pictureBox1.TabStop = false;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(46)))), ((int)(((byte)(59)))));
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(800, 388);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.autodiscoveryNumeric);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.statusText);
+            this.Controls.Add(this.statusBar);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.portNumeric);
+            this.Controls.Add(this.minimize);
+            this.Controls.Add(this.autostart);
             this.Controls.Add(this.connectedcount);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.exit_icon);
@@ -217,8 +362,10 @@
             this.Text = "PCRemote Server";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.notifyIconMain_menu.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.exit_icon)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.portNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.autodiscoveryNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -237,11 +384,20 @@
         private System.Windows.Forms.ToolStripMenuItem restart;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem quit;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Timer statusTimer;
         private System.Windows.Forms.Label connectedcount;
         private System.Windows.Forms.Label leftbar;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.CheckBox autostart;
+        private System.Windows.Forms.CheckBox minimize;
+        private System.Windows.Forms.NumericUpDown portNumeric;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label statusBar;
+        private System.Windows.Forms.Label statusText;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown autodiscoveryNumeric;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

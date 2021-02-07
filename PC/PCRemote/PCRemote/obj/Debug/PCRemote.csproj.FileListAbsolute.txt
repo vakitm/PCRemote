@@ -23,10 +23,8 @@ C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemot
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.exe
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.pdb
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Rssdp.dll
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\SimpleTCP.dll
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Rssdp.xml
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CopyComplete
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.exe
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.pdb

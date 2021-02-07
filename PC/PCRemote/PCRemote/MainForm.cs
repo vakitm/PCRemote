@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Rssdp;
 using SimpleTCP;
 using Newtonsoft.Json;
 using System.Net.NetworkInformation;
@@ -31,13 +30,15 @@ namespace PCRemote
         private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
         private const int WM_APPCOMMAND = 0x319;
 
+        Thread autoDiscoveryServerThread;
         SimpleTcpServer server;
-        bool connectEnabled = true;
         List<TcpClient> connectedClients = new List<TcpClient>();
         int availableRam;
         long down, up;
         int x, y;
-        int port = 1337;
+        int port = Convert.ToInt32(Properties.Settings.Default.serverport.ToString());
+        int discoveryPort = Convert.ToInt32(Properties.Settings.Default.discoveryport.ToString());
+
 
         [DllImport("Powrprof.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern bool SetSuspendState(bool hiberate, bool forceCritical, bool disableWakeEvent);
@@ -76,50 +77,82 @@ namespace PCRemote
             var info = new Microsoft.VisualBasic.Devices.ComputerInfo();
             availableRam = Convert.ToInt32(info.TotalPhysicalMemory / 1024 / 1024);
             ramCounter = new PerformanceCounter("Memory", "Available MBytes");
-            this.StartPosition = FormStartPosition.Manual;
-            this.Location = new Point(0, 2000);
             notifyIconMain.ContextMenuStrip = notifyIconMain_menu;
             openprogram.Click += new EventHandler(contextmenu_click);
             restart.Click += new EventHandler(contextmenu_click);
             quit.Click += new EventHandler(contextmenu_click);
 
+            portNumeric.Value = Convert.ToInt32(Properties.Settings.Default.serverport.ToString());
+            portNumeric.ValueChanged += portNumeric_ValueChanged;
+            autodiscoveryNumeric.Value = Convert.ToInt32(Properties.Settings.Default.discoveryport.ToString());
+            autodiscoveryNumeric.ValueChanged += autodiscoveryNumeric_ValueChanged;
+
+            minimize.Checked = Convert.ToBoolean(Properties.Settings.Default.minimized.ToString());
+            autostart.Checked = Convert.ToBoolean(Properties.Settings.Default.autostart.ToString());
+
             startServer();
-            new Thread(() =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                    var Server = new UdpClient(8888);
-                while (true)
-                {
-                    var ClientEp = new IPEndPoint(IPAddress.Any, 0);
-                    var ClientRequestData = Server.Receive(ref ClientEp);
-                    var ClientRequest = Encoding.ASCII.GetString(ClientRequestData);
-
-                    Console.WriteLine("Recived {0} from {1}, sending response", ClientRequest, ClientEp.Address.ToString());
-                    var ResponseData = Encoding.ASCII.GetBytes("PCREMOTE_DISCOVER_RESPONSE:"+port);
-                    Server.Send(ResponseData, ResponseData.Length, ClientEp);
-                }
-            }).Start();
-
+            startAutoDiscoveryServer();
             SystemEvents.PowerModeChanged += OnPowerModeChanged;
             x = 0; y = 0;
+        }
+        private void changeStatusBar(string text,Color color)
+        {
+            statusBar.BackColor = color;
+            statusText.Text = text;
+            statusText.BackColor = color;
+        }
+        private void startAutoDiscoveryServer()
+        {
+            if (autoDiscoveryServerThread != null) autoDiscoveryServerThread.Abort();
+            autoDiscoveryServerThread = new Thread(() =>
+            {
+                  try
+                  {
+                    Thread.CurrentThread.IsBackground = true;
+                    var Server = new UdpClient(discoveryPort);
+                    while (true)
+                    {
+                        var ClientEp = new IPEndPoint(IPAddress.Any, 0);
+                        var ClientRequestData = Server.Receive(ref ClientEp);
+                        var ClientRequest = Encoding.ASCII.GetString(ClientRequestData);
+
+                        Console.WriteLine("Recived {0} from {1}, sending response", ClientRequest, ClientEp.Address.ToString());
+                        var ResponseData = Encoding.ASCII.GetBytes("PCREMOTE_DISCOVER_RESPONSE:" + port);
+                        Server.Send(ResponseData, ResponseData.Length, ClientEp);
+                    }
+                 }
+                 catch(System.Net.Sockets.SocketException)
+                {
+                }
+            });
+            autoDiscoveryServerThread.Start();
         }
         private void stopServer()
         {
             foreach (TcpClient tc in connectedClients)
                 tc.Close();
-
             server.Stop();
+            changeStatusBar("Server is stopped", Color.FromArgb(255, 136, 0));
         }
 
         private void startServer()
         {
-            server = new SimpleTcpServer();
-            server.Delimiter = 0x13;
-            server.DataReceived += Server_DataReceived;
-            server.ClientConnected += Server_ClientConnected;
-            server.ClientDisconnected += Server_ClientDisconnected;
-            server.StringEncoder = Encoding.UTF8;
-            server.Start(System.Net.IPAddress.Parse("0.0.0.0"), port);
+            try
+            {
+                server = new SimpleTcpServer();
+                server.Delimiter = 0x13;
+                server.DataReceived += Server_DataReceived;
+                server.ClientConnected += Server_ClientConnected;
+                server.ClientDisconnected += Server_ClientDisconnected;
+                server.StringEncoder = Encoding.UTF8;
+                server.Start(System.Net.IPAddress.Parse("0.0.0.0"), port);
+                changeStatusBar("Server is running on " + getLocalIP() + ":" + port, Color.FromArgb(28, 198, 28));
+            }
+            catch(System.Net.Sockets.SocketException)
+            {
+                changeStatusBar("Server port:" + port + " is being used by another application", Color.FromArgb(255, 136, 0));
+            }
+            
         }
 
         private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
@@ -133,9 +166,6 @@ namespace PCRemote
                     break;
             }
 
-        }
-        private void button1_Click(object sender, EventArgs e)
-        {
         }
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
@@ -151,19 +181,11 @@ namespace PCRemote
         private void Server_ClientConnected(object sender, TcpClient e)
         {
             Debug.WriteLine("Connected");
-            if (!connectEnabled)
-            {
-                Debug.WriteLine("Connection disabled, so closed connection for new client.");
-                e.Close();
-            }
-            else
-            {
                 connectedClients.Add(e);
                 connectedcount.Invoke((MethodInvoker)delegate
                 {
                     connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
                 });
-            }
         }
 
         private void Server_DataReceived(object sender, SimpleTCP.Message e)
@@ -324,6 +346,7 @@ namespace PCRemote
         }
         private void MainForm_Load(object sender, EventArgs e)
         {
+            if (!Convert.ToBoolean(Properties.Settings.Default.minimized.ToString())) return;
             BeginInvoke(new MethodInvoker(delegate
             {
                 Hide();
@@ -439,9 +462,40 @@ namespace PCRemote
             catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
         }
 
-        private void connectedcount_Click(object sender, EventArgs e)
+        private void autodiscoveryNumeric_ValueChanged(object sender, EventArgs e)
         {
+            Properties.Settings.Default.discoveryport = Convert.ToInt32(autodiscoveryNumeric.Value);
+            Properties.Settings.Default.Save();
+            discoveryPort = Convert.ToInt32(autodiscoveryNumeric.Value);
+            startAutoDiscoveryServer();
+        }
 
+        private void portNumeric_ValueChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.serverport = Convert.ToInt32(portNumeric.Value);
+            Properties.Settings.Default.Save();
+            port = Convert.ToInt32(portNumeric.Value);
+            stopServer();
+            startServer();
+        }
+        private string getLocalIP()
+        {
+            String strHostName = Dns.GetHostName();
+            IPHostEntry ipHostEntry = Dns.GetHostEntry(strHostName);
+            IPAddress[] address = ipHostEntry.AddressList;
+            return address[4].ToString();
+        }
+
+        private void minimize_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.minimized = minimize.Checked;
+            Properties.Settings.Default.Save();
+        }
+
+        private void autostart_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.autostart = autostart.Checked;
+            Properties.Settings.Default.Save();
         }
 
         public double getCurrentCpuUsage()
