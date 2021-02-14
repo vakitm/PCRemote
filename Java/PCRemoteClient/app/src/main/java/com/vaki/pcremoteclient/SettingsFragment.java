@@ -27,16 +27,14 @@ import java.util.Map;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     Thread ipDiscoveryThread;
-    EditTextPreference ipPreference;
-    EditTextPreference portPreference;
+    EditTextPreference autoDiscoveryPortPreference;
     private SharedPreferences SP;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
-        Preference button = (Preference) getPreferenceManager().findPreference("autodiscovery");
-        ipPreference = (EditTextPreference) getPreferenceManager().findPreference("ipaddress");
-        portPreference = (EditTextPreference) getPreferenceManager().findPreference("port");
+        Preference button = getPreferenceManager().findPreference("autodiscovery");
+        autoDiscoveryPortPreference = getPreferenceManager().findPreference("discoveryport");
         button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -59,7 +57,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             //Try the 255.255.255.255 first
                             try {
 
-                                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), 8888);
+                                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), Integer.parseInt(autoDiscoveryPortPreference.getText()));
                                 c.send(sendPacket);
                                 Log.d("ssdp", getClass().getName() + ">>> Request packet sent to: 255.255.255.255 (DEFAULT)");
                             } catch (Exception e) {
@@ -82,7 +80,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
                                     // Send the broadcast package!
                                     try {
-                                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, 8888);
+                                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, Integer.parseInt(autoDiscoveryPortPreference.getText()));
                                         c.send(sendPacket);
                                     } catch (Exception e) {
                                     }
@@ -104,7 +102,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             if (message.contains("PCREMOTE_DISCOVER_RESPONSE")) {
                                 Log.d("IP found", String.valueOf(receivePacket.getAddress()));
 
-                                Toast.makeText(getActivity(), "Server found at: "+String.valueOf(receivePacket.getAddress()).replace("/", "")+":"+message.split(":")[1],
+                                Toast.makeText(getContext(), "Server found at: "+String.valueOf(receivePacket.getAddress()).replace("/", "")+":"+message.split(":")[1],
                                         Toast.LENGTH_LONG).show();
                                 SharedPreferences.Editor editor = SP.edit();
                                 editor.putString("ipaddress", String.valueOf(receivePacket.getAddress()).replace("/", ""));

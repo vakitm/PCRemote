@@ -1,6 +1,5 @@
 package com.vaki.pcremoteclient;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,7 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+
 import android.widget.Toast;
 
 import org.json.JSONException;

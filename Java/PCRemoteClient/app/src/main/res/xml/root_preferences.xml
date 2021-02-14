@@ -17,6 +17,11 @@
             app:title="Port"
             app:defaultValue="1337"
             app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:key="discoveryport"
+            app:title="Server discovery port"
+            app:defaultValue="8888"
+            app:useSimpleSummaryProvider="true" />
         <Preference
             app:title="Find server"
             app:key="autodiscovery"

@@ -13,13 +13,18 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace PCRemote
 {
     public partial class MainForm : Form
     {
+        Thread autoDiscoveryServerThread;
+        SimpleTcpServer server;
+        List<TcpClient> connectedClients = new List<TcpClient>();
         PerformanceCounter cpuCounter;
         PerformanceCounter ramCounter;
+
         public const int MOUSEEVENTF_LEFTDOWN = 0x02;
         public const int MOUSEEVENTF_LEFTUP = 0x04;
         public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
@@ -30,16 +35,13 @@ namespace PCRemote
         private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
         private const int WM_APPCOMMAND = 0x319;
 
-        Thread autoDiscoveryServerThread;
-        SimpleTcpServer server;
-        List<TcpClient> connectedClients = new List<TcpClient>();
         int availableRam;
-        long down, up;
-        int x, y;
+        long down = 0, up = 0;
+        int x = 0, y = 0;
         int port = Convert.ToInt32(Properties.Settings.Default.serverport.ToString());
         int discoveryPort = Convert.ToInt32(Properties.Settings.Default.discoveryport.ToString());
 
-
+        #region ###### SystemCalls ######
         [DllImport("Powrprof.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern bool SetSuspendState(bool hiberate, bool forceCritical, bool disableWakeEvent);
         [DllImport("user32")]
@@ -66,11 +68,11 @@ namespace PCRemote
 
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool ExitWindowsEx(uint uFlags, uint dwReason);
+        #endregion
         public MainForm()
         {
             InitializeComponent();
             cpuCounter = new PerformanceCounter();
-            up = 0; down = 0;
             cpuCounter.CategoryName = "Processor";
             cpuCounter.CounterName = "% Processor Time";
             cpuCounter.InstanceName = "_Total";
@@ -87,20 +89,15 @@ namespace PCRemote
             autodiscoveryNumeric.Value = Convert.ToInt32(Properties.Settings.Default.discoveryport.ToString());
             autodiscoveryNumeric.ValueChanged += autodiscoveryNumeric_ValueChanged;
 
+            SystemEvents.PowerModeChanged += OnPowerModeChanged;
+
             minimize.Checked = Convert.ToBoolean(Properties.Settings.Default.minimized.ToString());
             autostart.Checked = Convert.ToBoolean(Properties.Settings.Default.autostart.ToString());
 
             startServer();
             startAutoDiscoveryServer();
-            SystemEvents.PowerModeChanged += OnPowerModeChanged;
-            x = 0; y = 0;
         }
-        private void changeStatusBar(string text,Color color)
-        {
-            statusBar.BackColor = color;
-            statusText.Text = text;
-            statusText.BackColor = color;
-        }
+        #region ###### SERVER ######
         private void startAutoDiscoveryServer()
         {
             if (autoDiscoveryServerThread != null) autoDiscoveryServerThread.Abort();
@@ -154,19 +151,6 @@ namespace PCRemote
             }
             
         }
-
-        private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
-        {
-            switch (e.Mode)
-            {
-                case PowerModes.Suspend:
-                    break;
-                case PowerModes.Resume:
-                    startServer();
-                    break;
-            }
-
-        }
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
 
@@ -218,111 +202,161 @@ namespace PCRemote
         }
         private void processJson(string message)
         {
-            Dictionary<string, string> json = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
-            switch (json["a"])
+            try
             {
-                case "d":
+                Dictionary<string, string> json = JsonConvert.DeserializeObject<Dictionary<string, string>>(message);
+                switch (json["a"])
+                {
+                    case "d":
 
-                    x = Convert.ToInt32(json["x"]);
-                    y = Convert.ToInt32(json["y"]);
-                    break;
-                case "k":
-                    if (json["k"] == "bs")
-                        keybd_event((byte)0x08, 0x9e, 0, 0);
-                    else if (json["k"] == "en")
-                        keybd_event((byte)System.Windows.Forms.Keys.Enter, 0x45, 0, 0);
-                    else if (json["k"] == "vu")
+                        x = Convert.ToInt32(json["x"]);
+                        y = Convert.ToInt32(json["y"]);
+                        break;
+                    case "k":
+                        if (json["k"] == "bs")
+                            keybd_event((byte)0x08, 0x9e, 0, 0);
+                        else if (json["k"] == "en")
+                            keybd_event((byte)System.Windows.Forms.Keys.Enter, 0x45, 0, 0);
+                        else if (json["k"] == "vu")
+                            VolumeControl(APPCOMMAND_VOLUME_UP);
+                        else if (json["k"] == "vd")
+                            VolumeControl(APPCOMMAND_VOLUME_DOWN);
+                        else
+                        {
+                            byte keybd;
+                            bool isCapital;
+                            if (int.TryParse(json["k"], out _))
+                            {
+                                char key = Convert.ToChar(Convert.ToInt32(json["k"]));
+                                Debug.WriteLine(Convert.ToString(key));
+                                Debug.WriteLine(VkKeyScan(key));
+                                if (json["cpt"] == "1")
+                                {
+                                    if (VkKeyScan(key) > 255)
+                                    {
+                                        SendKeys.SendWait(Regex.Replace(key + "", "[+^%~()]", "{$0}") + "");
+                                        Debug.WriteLine("SendKeys");
+                                        return;
+                                    }
+                                    else
+                                        keybd = Convert.ToByte(key);
+                                    isCapital = true;
+                                }
+                                else
+                                {
+                                    if (VkKeyScan(key) > 255)
+                                    {
+                                        SendKeys.SendWait(Regex.Replace(key + "", "[+^%~()]", "{$0}") + "");
+                                        Debug.WriteLine("SendKeys");
+                                        return;
+                                    }
+                                    else
+                                        keybd = Convert.ToByte(VkKeyScan(key));
+                                    isCapital = false;
+                                }
+                            }
+                            else
+                            {
+                                if (Char.IsUpper(Convert.ToChar(json["k"])))
+                                    isCapital = true;
+                                else
+                                    isCapital = false;
+                                keybd = Convert.ToByte(VkKeyScan(Char.ToLower(Convert.ToChar(json["k"]))));
+                            }
+                            if (isCapital)
+                                keybd_event(16, 0, 0, 0);
+
+                            keybd_event(keybd, 0x9e, 0, 0);
+
+                            if (isCapital)
+                                keybd_event(16, 0, 0x0002, 0);
+                        }
+                        break;
+                    case "m":
+                        ThreadPool.QueueUserWorkItem(delegate
+                        {
+                            Invoke(new Action(delegate
+                            {
+
+                                int xmove, ymove;
+                                if (x > Convert.ToInt32(json["x"]))
+                                    xmove = x - Convert.ToInt32(json["x"]);
+                                else if (x < Convert.ToInt32(json["x"]))
+                                    xmove = x - Convert.ToInt32(json["x"]);
+                                else xmove = 0;
+                                if (y > Convert.ToInt32(json["y"]))
+                                    ymove = y - Convert.ToInt32(json["y"]);
+                                else if (y < Convert.ToInt32(json["y"]))
+                                    ymove = y - Convert.ToInt32(json["y"]);
+                                else ymove = 0;
+                                this.Cursor = new Cursor(Cursor.Current.Handle);
+                                Cursor.Position = new Point(Cursor.Position.X - xmove, Cursor.Position.Y - ymove);
+                                x = Convert.ToInt32(json["x"]);
+                                y = Convert.ToInt32(json["y"]);
+                            }));
+                        });
+                        break;
+                    case "lc":
+                        LeftMouseClick();
+                        break;
+                    case "rc":
+                        RightMouseClick();
+                        break;
+                    case "sd":
+                        Debug.WriteLine("Shut down");
+                        Process.Start("shutdown", "/s /t 0");
+                        break;
+                    case "rs":
+                        Debug.WriteLine("Restart");
+                        Process.Start("shutdown.exe", "/r /t 0");
+                        break;
+                    case "sl":
+                        Debug.WriteLine("Sleep");
+                        ThreadPool.QueueUserWorkItem(delegate
+                        {
+                            Invoke(new Action(delegate
+                            {
+                                stopServer();
+                                SetSuspendState(false, true, true);
+                            }));
+                        });
+                        break;
+                    case "hb":
+                        Debug.WriteLine("Hibernate");
+                        ThreadPool.QueueUserWorkItem(delegate
+                        {
+                            Invoke(new Action(delegate
+                            {
+                                stopServer();
+                                SetSuspendState(true, true, true);
+                            }));
+                        });
+                        break;
+                    case "lo":
+                        Debug.WriteLine("Log off");
+                        ExitWindowsEx(0, 0);
+                        break;
+                    case "lk":
+                        LockWorkStation();
+                        Debug.WriteLine("Lock");
+                        break;
+                    case "vu":
                         VolumeControl(APPCOMMAND_VOLUME_UP);
-                    else if (json["k"] == "vd")
+                        break;
+                    case "vd":
                         VolumeControl(APPCOMMAND_VOLUME_DOWN);
-                    else
-                    {
-                        char key = Convert.ToChar(Convert.ToInt32(json["k"]));
-                        if (VkKeyScan(key) > 255) return;
-                        Debug.WriteLine(Convert.ToString(key));
-                        Debug.WriteLine(VkKeyScan(key));
-                        keybd_event(Convert.ToByte(VkKeyScan(key)), 0x9e, 0, 0);
-                    }
-                    break;
-                case "m":
-                    ThreadPool.QueueUserWorkItem(delegate
-                    {
-                        Invoke(new Action(delegate
-                        {
-
-                            int xmove, ymove;
-                            if (x > Convert.ToInt32(json["x"]))
-                                xmove = x - Convert.ToInt32(json["x"]);
-                            else if (x < Convert.ToInt32(json["x"]))
-                                xmove = x - Convert.ToInt32(json["x"]);
-                            else xmove = 0;
-                            if (y > Convert.ToInt32(json["y"]))
-                                ymove = y - Convert.ToInt32(json["y"]);
-                            else if (y < Convert.ToInt32(json["y"]))
-                                ymove = y - Convert.ToInt32(json["y"]);
-                            else ymove = 0;
-                            this.Cursor = new Cursor(Cursor.Current.Handle);
-                            Cursor.Position = new Point(Cursor.Position.X - xmove, Cursor.Position.Y - ymove);
-                            x = Convert.ToInt32(json["x"]);
-                            y = Convert.ToInt32(json["y"]);
-                        }));
-                    });
-                    break;
-                case "lc":
-                    LeftMouseClick();
-                    break;
-                case "rc":
-                    RightMouseClick();
-                    break;
-                case "sd":
-                    Debug.WriteLine("Shut down");
-                    Process.Start("shutdown", "/s /t 0");
-                    break;
-                case "rs":
-                    Debug.WriteLine("Restart");
-                    Process.Start("shutdown.exe", "/r /t 0");
-                    break;
-                case "sl":
-                    Debug.WriteLine("Sleep");
-                    ThreadPool.QueueUserWorkItem(delegate
-                    {
-                        Invoke(new Action(delegate
-                        {
-                            stopServer();
-                            SetSuspendState(false, true, true);
-                        }));
-                    });
-                    break;
-                case "hb":
-                    Debug.WriteLine("Hibernate");
-                    ThreadPool.QueueUserWorkItem(delegate
-                    {
-                        Invoke(new Action(delegate
-                        {
-                            stopServer();
-                            SetSuspendState(true, true, true);
-                        }));
-                    });
-                    break;
-                case "lo":
-                    Debug.WriteLine("Log off");
-                    ExitWindowsEx(0, 0);
-                    break;
-                case "lk":
-                    LockWorkStation();
-                    Debug.WriteLine("Lock");
-                    break;
-                case "vu":
-                    VolumeControl(APPCOMMAND_VOLUME_UP);
-                    break;
-                case "vd":
-                    VolumeControl(APPCOMMAND_VOLUME_DOWN);
-                    break;
-                case "vm":
-                    VolumeControl(APPCOMMAND_VOLUME_MUTE);
-                    break;
+                        break;
+                    case "vm":
+                        VolumeControl(APPCOMMAND_VOLUME_MUTE);
+                        break;
+                }
             }
+            catch (Exception ex) { }
         }
+        #endregion
+
+
+        #region ###### METHODS ######
         public void VolumeControl(int Iparam)
         {
             ThreadPool.QueueUserWorkItem(delegate
@@ -344,6 +378,16 @@ namespace PCRemote
             mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
             mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
+        private void changeStatusBar(string text, Color color)
+        {
+            statusBar.BackColor = color;
+            statusText.Text = text;
+            statusText.BackColor = color;
+        }
+        #endregion
+
+
+        #region ###### EVENTS ######
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (!Convert.ToBoolean(Properties.Settings.Default.minimized.ToString())) return;
@@ -352,14 +396,6 @@ namespace PCRemote
                 Hide();
             }));
             this.Location = new Point((Screen.PrimaryScreen.Bounds.Size.Width / 2) - (this.Size.Width / 2), (Screen.PrimaryScreen.Bounds.Size.Height / 2) - (this.Size.Height / 2));
-        }
-
-        private void notifyIconMain_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                this.Visible = !this.Visible;
-            }
         }
         private void contextmenu_click(object sender, EventArgs e)
         {
@@ -378,41 +414,6 @@ namespace PCRemote
                     break;
             }
         }
-
-        #region ToplabelEvents
-        private void topbar_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                ReleaseCapture();
-                SendMessage(Handle, 0xA1, 0x2, 0);
-            }
-        }
-
-        private void toplabel_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                ReleaseCapture();
-                SendMessage(Handle, 0xA1, 0x2, 0);
-            }
-        }
-
-        private void exit_icon_MouseHover(object sender, EventArgs e)
-        {
-            exit_icon.BackColor = Color.FromArgb(255, 0, 0);
-        }
-
-        private void exit_icon_MouseLeave(object sender, EventArgs e)
-        {
-            exit_icon.BackColor = Color.FromArgb(0, 102, 204);
-        }
-
-        private void exit_icon_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-        }
-        #endregion
         private void statusTimer_Tick(object sender, EventArgs e)
         {
             int ping = 0;
@@ -461,7 +462,18 @@ namespace PCRemote
             }
             catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
         }
+        private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Suspend:
+                    break;
+                case PowerModes.Resume:
+                    startServer();
+                    break;
+            }
 
+        }
         private void autodiscoveryNumeric_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.discoveryport = Convert.ToInt32(autodiscoveryNumeric.Value);
@@ -478,14 +490,6 @@ namespace PCRemote
             stopServer();
             startServer();
         }
-        private string getLocalIP()
-        {
-            String strHostName = Dns.GetHostName();
-            IPHostEntry ipHostEntry = Dns.GetHostEntry(strHostName);
-            IPAddress[] address = ipHostEntry.AddressList;
-            return address[4].ToString();
-        }
-
         private void minimize_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.minimized = minimize.Checked;
@@ -496,8 +500,67 @@ namespace PCRemote
         {
             Properties.Settings.Default.autostart = autostart.Checked;
             Properties.Settings.Default.Save();
+            RegistryKey rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+
+            if (autostart.Checked)
+                rk.SetValue("PCRemote Server", Application.ExecutablePath);
+            else
+                rk.DeleteValue("PCRemote Server", false);
+        }
+        private void notifyIconMain_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.Visible = !this.Visible;
+            }
+        }
+        #endregion
+
+
+        #region ###### ToplabelEvents ######
+        private void topbar_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, 0xA1, 0x2, 0);
+            }
         }
 
+        private void toplabel_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, 0xA1, 0x2, 0);
+            }
+        }
+
+        private void exit_icon_MouseHover(object sender, EventArgs e)
+        {
+            exit_icon.BackColor = Color.FromArgb(255, 0, 0);
+        }
+
+        private void exit_icon_MouseLeave(object sender, EventArgs e)
+        {
+            exit_icon.BackColor = Color.FromArgb(0, 102, 204);
+        }
+
+        private void exit_icon_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+        }
+        #endregion
+
+
+        #region ###### GETTERS ######
+        private string getLocalIP()
+        {
+            String strHostName = Dns.GetHostName();
+            IPHostEntry ipHostEntry = Dns.GetHostEntry(strHostName);
+            IPAddress[] address = ipHostEntry.AddressList;
+            return address[4].ToString();
+        }
         public double getCurrentCpuUsage()
         {
             return cpuCounter.NextValue();
@@ -507,6 +570,7 @@ namespace PCRemote
         {
             return ((availableRam - ramCounter.NextValue()) / availableRam) * 100;
         }
+        #endregion
     }
     class CheckIn
     {

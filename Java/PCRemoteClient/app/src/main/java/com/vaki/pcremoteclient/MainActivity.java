@@ -1,7 +1,7 @@
 package com.vaki.pcremoteclient;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,18 +12,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceManager;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -33,24 +30,8 @@ import com.google.android.material.navigation.NavigationView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
-
-import io.resourcepool.ssdp.client.SsdpClient;
-import io.resourcepool.ssdp.model.DiscoveryListener;
-import io.resourcepool.ssdp.model.DiscoveryRequest;
-import io.resourcepool.ssdp.model.SsdpRequest;
-import io.resourcepool.ssdp.model.SsdpService;
-import io.resourcepool.ssdp.model.SsdpServiceAnnouncement;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -63,9 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public int currentFragment;
     private SharedPreferences SP;
     NavigationView navigationView;
-    View rootView;
     AsyncTask ConnectTask;
-    Boolean ConnectTaskCreated = false;
 
 
     @Override
@@ -80,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        statusbar = (LinearLayout) findViewById(R.id.statusbar);
-        statusbar_text = (TextView) findViewById(R.id.statusbar_text);
+        statusbar = findViewById(R.id.statusbar);
+        statusbar_text = findViewById(R.id.statusbar_text);
 
         currentFragment = 1;
 
@@ -100,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ConnectTask = new ConnectTask(this);
         Log.d("MainActivity", "onCreate();");
-
-
     }
 
     @Override
@@ -180,15 +157,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-   /* @Override
+   @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        Log.d("dispatchKeyEvent", event.get()+":" +event.getUnicodeChar());
-
+       //Log.d("dispatchKeyEvent",event.getAction()+"");
+       if(event.getAction()==0)
+           return super.dispatchKeyEvent(event);
+       JSONObject obj = new JSONObject();
+       String key;
+       if (event.getKeyCode() == 67)
+           key = "bs";
+       else if (event.getKeyCode() == 66)
+           key = "en";
+       else if (event.getKeyCode() == 24)
+           key = "vu";
+       else if (event.getKeyCode() == 25)
+           key = "vd";
+       else if (event.getKeyCode() == 59)
+           return super.dispatchKeyEvent(event);
+       else if(event.getAction()==2)
+           key=event.getCharacters();
+       else
+           key = String.valueOf(event.getUnicodeChar());
+       try {
+           obj.put("a", "k");
+           obj.put("k", key);
+           if(event.getMetaState()==KeyEvent.META_SHIFT_ON)
+               obj.put("cpt","1");
+           else
+               obj.put("cpt","0");
+           mTcpClient.sendMessage(obj.toString());
+       } catch (JSONException ex) {
+           ex.printStackTrace();
+       }
+       //Log.d("dispatchKeyEvent", event.getKeyCode() + ":" + event.getUnicodeChar());
         return super.dispatchKeyEvent(event);
-    }*/
-
-    @Override
+    }
+    /*@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d("onKeyDown",event.getAction()+"");
         JSONObject obj = new JSONObject();
         String key;
         if (event.getKeyCode() == 67)
@@ -212,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         Log.d("onKeyDown", event.getKeyCode() + ":" + event.getUnicodeChar());
         return super.onKeyDown(keyCode, event);
-    }
+    }*/
 
     public void closeSoftKeyb() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -299,21 +305,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mainActivity = activity;
             this.execute("");
         }
-
         @Override
         protected TcpClient doInBackground(String... message) {
 
-            //we create a TCPClient object
             mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
                 @Override
                 //here the messageReceived method is implemented
                 public void messageReceived(String message) {
-                    //this method calls the onProgressUpdate
                     publishProgress(message);
                 }
             }, mainActivity);
             mTcpClient.run();
-
             return null;
         }
 
