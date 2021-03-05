@@ -2,20 +2,34 @@
     <string name="app_name">PCRemoteClient</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
 
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="cpu_text">CPU: %1$s</string>
+    <string name="ram_text">RAM: %1$s</string>
+    <string name="ping_text">Ping: %1$s ms </string>
+    <string name="dl_text">Download: %1$s KB/sec</string>
+    <string name="ul_text">Upload: %1$s KB/sec</string>
+    <string name="ip">IP Address</string>
+    <string name="port">Port</string>
+    <string name="discoveryport">Server discovery port</string>
+    <string name="autoserverdiscovery">Automatic server discovery</string>
+    <string name="defaultpage">Select default page</string>
+    <string name="specdefaultpage">Specify the page, that opened on startup</string>
+    <string name="findserver">Find server</string>
+    <string name="pcremote_client">PCRemote Client</string>
+    <string name="voldown">Volume DOWN</string>
+    <string name="mute">Mute</string>
+    <string name="volup">Volume UP</string>
+    <string name="shutdown">Shut down</string>
+    <string name="restart">Restart</string>
+    <string name="sleep">Sleep</string>
+    <string name="hibernate">Hibernate</string>
+    <string name="signout">Sign out</string>
+    <string name="lock">Lock</string>
+    <string name="keyboard">Keyboard</string>
+    <string name="home">Home</string>
+    <string name="basic_input">Basic Input</string>
+    <string name="volume_controll">Volume Control</string>
+    <string name="power">Power</string>
+    <string name="settings">Settings</string>
+    <string name="open_last_used">Open last used</string>
 </resources>

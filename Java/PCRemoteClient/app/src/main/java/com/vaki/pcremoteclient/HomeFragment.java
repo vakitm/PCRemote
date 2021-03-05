@@ -44,40 +44,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         upload = rootView.findViewById(R.id.upload);
         view = rootView.findViewById(R.id.view);
 
-
-       /* btn = (Button)rootView.findViewById(R.id.button);
-        btn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                InputMethodManager im = (InputMethodManager)getActivity().getSystemService(getContext().INPUT_METHOD_SERVICE);
-                im.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-
-                Log.d("asd","clicked");
-            }
-        });*/
-
-
-        /*btn = (Button) rootView.findViewById(R.id.butt);
-        btn.setText("erikci");
-        btn.setOnClickListener(this);
-        /*btn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Log.d("Homefragment","clicked()");
-                ((MainActivity) getActivity()).mTcpClient.sendMessage("asd");
-            }
-        });
-        /*private View.OnClickListener buttonClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        };*/
         Log.d("Homefragment", "OnCreateView()");
+
+        cpu.setText(getString(R.string.cpu_text,"-%" ));
+        ram.setText(getString(R.string.ram_text,"-%" ));
+        ping.setText(getString(R.string.ping_text,"-" ));
+        download.setText(getString(R.string.dl_text,"-" ));
+        upload.setText(getString(R.string.ul_text,"-" ));
         return rootView;
     }
 
@@ -113,11 +86,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             if (msg.what == 1) {
                 try {
                     JSONObject jObject = new JSONObject((String) msg.obj);
-                    cpu.setText("CPU: " + jObject.getInt("cpu") + "%");
-                    ram.setText("RAM: " + jObject.getInt("ram") + "%");
-                    ping.setText("Ping: " + jObject.getInt("ping") + " ms");
-                    download.setText("Download: " + jObject.getInt("down") + " KB/sec");
-                    upload.setText("Upload: " + jObject.getInt("up") + " KB/sec");
+                    cpu.setText(getString(R.string.cpu_text,jObject.getInt("cpu")+"%" ));
+                    ram.setText(getString(R.string.ram_text,jObject.getInt("ram")+"%" ));
+                    ping.setText(getString(R.string.ping_text,jObject.getInt("ping")+"" ));
+                    download.setText(getString(R.string.dl_text,jObject.getInt("down")+"" ));
+                    upload.setText(getString(R.string.ul_text,jObject.getInt("up")+"" ));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

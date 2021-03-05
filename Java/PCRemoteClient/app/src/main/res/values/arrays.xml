@@ -1,6 +1,6 @@
 <resources>
     <string-array name="activity_list_titles">
-        <item>Home</item>
+        <item>@string/home</item>
         <item>Basic Input</item>
         <item>Volume controll</item>
         <item>Power</item>

@@ -3,29 +3,29 @@
     <PreferenceCategory app:title="Settings">
         <ListPreference
             app:key="startup_activity_selected"
-            app:title="Select default page"
-            app:summary="Specify the page, that opened on startup"
+            app:title="@string/defaultpage"
+            app:summary="@string/specdefaultpage"
             app:entries="@array/activity_list_titles"
             app:entryValues="@array/activity_list_values"
             app:dialogTitle="Select page" />
         <EditTextPreference
             app:key="ipaddress"
-            app:title="IP Address"
+            app:title="@string/ip"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:key="port"
-            app:title="Port"
+            app:title="@string/port"
             app:defaultValue="1337"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             app:key="discoveryport"
-            app:title="Server discovery port"
+            app:title="@string/discoveryport"
             app:defaultValue="8888"
             app:useSimpleSummaryProvider="true" />
         <Preference
-            app:title="Find server"
+            app:title="@string/findserver"
             app:key="autodiscovery"
-            app:summary="Automatic server discovery"
+            app:summary="@string/autoserverdiscovery"
             />
 
     </PreferenceCategory>

@@ -36,7 +36,6 @@
             this.notifyIconMain_menu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.openprogram = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.connect = new System.Windows.Forms.ToolStripMenuItem();
             this.restart = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.quit = new System.Windows.Forms.ToolStripMenuItem();
@@ -98,12 +97,11 @@
             this.notifyIconMain_menu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openprogram,
             this.toolStripSeparator1,
-            this.connect,
             this.restart,
             this.toolStripSeparator2,
             this.quit});
             this.notifyIconMain_menu.Name = "notifyicon_menu";
-            this.notifyIconMain_menu.Size = new System.Drawing.Size(198, 104);
+            this.notifyIconMain_menu.Size = new System.Drawing.Size(198, 82);
             // 
             // openprogram
             // 
@@ -116,12 +114,6 @@
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(194, 6);
-            // 
-            // connect
-            // 
-            this.connect.Name = "connect";
-            this.connect.Size = new System.Drawing.Size(197, 22);
-            this.connect.Text = "Connected";
             // 
             // restart
             // 
@@ -258,11 +250,11 @@
             this.statusText.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(28)))), ((int)(((byte)(198)))), ((int)(((byte)(28)))));
             this.statusText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.statusText.ForeColor = System.Drawing.SystemColors.Window;
-            this.statusText.Location = new System.Drawing.Point(353, 33);
+            this.statusText.Location = new System.Drawing.Point(400, 33);
             this.statusText.Name = "statusText";
-            this.statusText.Size = new System.Drawing.Size(216, 16);
+            this.statusText.Size = new System.Drawing.Size(107, 16);
             this.statusText.TabIndex = 76;
-            this.statusText.Text = "Server is running on xxx.xxx.x.x:1337";
+            this.statusText.Text = "Server is running";
             this.statusText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label3
@@ -358,8 +350,10 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PCRemote Server";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.notifyIconMain_menu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.exit_icon)).EndInit();
@@ -380,7 +374,6 @@
         private System.Windows.Forms.ContextMenuStrip notifyIconMain_menu;
         private System.Windows.Forms.ToolStripMenuItem openprogram;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem connect;
         private System.Windows.Forms.ToolStripMenuItem restart;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem quit;

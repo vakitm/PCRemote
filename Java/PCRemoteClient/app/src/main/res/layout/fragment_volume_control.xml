@@ -31,9 +31,8 @@
             fancy:fb_fontIconSize="25sp"
             fancy:fb_iconPosition="top"
             fancy:fb_radius="10dp"
-            fancy:fb_text="Volume UP"
-            fancy:fb_textColor="#FFFFFF">
-        </mehdi.sakout.fancybuttons.FancyButton>
+            fancy:fb_text="@string/volup"
+            fancy:fb_textColor="#FFFFFF" />
 
         <mehdi.sakout.fancybuttons.FancyButton
             android:id="@+id/btn_down"
@@ -53,8 +52,9 @@
             fancy:fb_fontIconSize="25sp"
             fancy:fb_iconPosition="top"
             fancy:fb_radius="10dp"
-            fancy:fb_text="Volume DOWN"
-            fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+            fancy:fb_text="@string/voldown"
+            fancy:fb_textColor="#FFFFFF" />
+
         <mehdi.sakout.fancybuttons.FancyButton
             android:id="@+id/btn_mute"
             android:layout_width="fill_parent"
@@ -73,7 +73,7 @@
             fancy:fb_fontIconSize="25sp"
             fancy:fb_iconPosition="top"
             fancy:fb_radius="10dp"
-            fancy:fb_text="Mute"
-            fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+            fancy:fb_text="@string/mute"
+            fancy:fb_textColor="#FFFFFF" />
     </LinearLayout>
 </FrameLayout>

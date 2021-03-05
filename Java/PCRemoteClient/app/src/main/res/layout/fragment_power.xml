@@ -12,6 +12,7 @@
             android:layout_marginRight="2dp"
             android:layout_marginLeft="2dp"
             android:orientation="vertical" >
+
             <mehdi.sakout.fancybuttons.FancyButton
                 android:id="@+id/btn_shutdown"
                 android:layout_width="fill_parent"
@@ -30,9 +31,8 @@
                 fancy:fb_fontIconSize="25sp"
                 fancy:fb_iconPosition="top"
                 fancy:fb_radius="10dp"
-                fancy:fb_text="Shut down"
-                fancy:fb_textColor="#FFFFFF">
-            </mehdi.sakout.fancybuttons.FancyButton>
+                fancy:fb_text="@string/shutdown"
+                fancy:fb_textColor="#FFFFFF" />
 
             <mehdi.sakout.fancybuttons.FancyButton
                 android:id="@+id/btn_restart"
@@ -52,8 +52,9 @@
                 fancy:fb_fontIconSize="25sp"
                 fancy:fb_iconPosition="top"
                 fancy:fb_radius="10dp"
-                fancy:fb_text="Restart"
-                fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+                fancy:fb_text="@string/restart"
+                fancy:fb_textColor="#FFFFFF" />
+
             <mehdi.sakout.fancybuttons.FancyButton
                 android:id="@+id/btn_sleep"
                 android:layout_width="fill_parent"
@@ -72,8 +73,9 @@
                 fancy:fb_fontIconSize="25sp"
                 fancy:fb_iconPosition="top"
                 fancy:fb_radius="10dp"
-                fancy:fb_text="Sleep"
-                fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+                fancy:fb_text="@string/sleep"
+                fancy:fb_textColor="#FFFFFF" />
+
             <mehdi.sakout.fancybuttons.FancyButton
                 android:id="@+id/btn_hibernate"
                 android:layout_width="fill_parent"
@@ -92,8 +94,9 @@
                 fancy:fb_fontIconSize="25sp"
                 fancy:fb_iconPosition="top"
                 fancy:fb_radius="10dp"
-                fancy:fb_text="Hibernate"
-                fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+                fancy:fb_text="@string/hibernate"
+                fancy:fb_textColor="#FFFFFF" />
+
             <mehdi.sakout.fancybuttons.FancyButton
                 android:id="@+id/btn_logoff"
                 android:layout_width="fill_parent"
@@ -112,8 +115,9 @@
                 fancy:fb_fontIconSize="25sp"
                 fancy:fb_iconPosition="top"
                 fancy:fb_radius="10dp"
-                fancy:fb_text="Sign out"
-                fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+                fancy:fb_text="@string/signout"
+                fancy:fb_textColor="#FFFFFF" />
+
             <mehdi.sakout.fancybuttons.FancyButton
                 android:id="@+id/btn_lock"
                 android:layout_width="fill_parent"
@@ -132,14 +136,8 @@
                 fancy:fb_fontIconSize="25sp"
                 fancy:fb_iconPosition="top"
                 fancy:fb_radius="10dp"
-                fancy:fb_text="Lock"
-                fancy:fb_textColor="#FFFFFF"></mehdi.sakout.fancybuttons.FancyButton>
+                fancy:fb_text="@string/lock"
+                fancy:fb_textColor="#FFFFFF" />
         </LinearLayout>
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

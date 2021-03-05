@@ -143,7 +143,7 @@ namespace PCRemote
                 server.ClientDisconnected += Server_ClientDisconnected;
                 server.StringEncoder = Encoding.UTF8;
                 server.Start(System.Net.IPAddress.Parse("0.0.0.0"), port);
-                changeStatusBar("Server is running on " + getLocalIP() + ":" + port, Color.FromArgb(28, 198, 28));
+                changeStatusBar("Server is running", Color.FromArgb(28, 198, 28));
             }
             catch(System.Net.Sockets.SocketException)
             {
@@ -351,7 +351,7 @@ namespace PCRemote
                         break;
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
         }
         #endregion
 
@@ -383,6 +383,10 @@ namespace PCRemote
             statusBar.BackColor = color;
             statusText.Text = text;
             statusText.BackColor = color;
+            if (text.Length > 40)
+                statusText.Location = new Point(320, 33);
+            else
+                statusText.Location = new Point(400, 33);
         }
         #endregion
 

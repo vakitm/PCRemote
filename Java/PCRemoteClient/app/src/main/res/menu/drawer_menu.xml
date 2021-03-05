@@ -6,25 +6,25 @@
             <item
                 android:id="@+id/nav_home"
                 android:icon="@drawable/ic_home"
-                android:title="Home" />
+                android:title="@string/home" />
             <item
                 android:id="@+id/nav_input"
                 android:icon="@drawable/ic_input"
-                android:title="Basic Input" />
+                android:title="@string/basic_input" />
 
             <item
                 android:id="@+id/nav_volume"
                 android:icon="@drawable/ic_volume"
-                android:title="Volume Controll" />
+                android:title="@string/volume_controll" />
 
             <item
                 android:id="@+id/nav_power"
                 android:icon="@drawable/ic_power"
-                android:title="Power" />
+                android:title="@string/power" />
 
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings"
-                android:title="Settings" />
+                android:title="@string/settings" />
         </group>
     </menu>

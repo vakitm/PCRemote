@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="10dp"
-                android:text="CPU:"
+                android:text="@string/cpu_text"
                 android:textColor="@color/whiteColor"
                 app:layout_constraintStart_toStartOf="@+id/view"
                 app:layout_constraintTop_toTopOf="@+id/view" />
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="30dp"
-                android:text="RAM:"
+                android:text="@string/ram_text"
                 android:textColor="@color/whiteColor"
                 app:layout_constraintStart_toStartOf="@+id/view"
                 app:layout_constraintTop_toTopOf="@+id/view" />
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="50dp"
-                android:text="Ping: "
+                android:text="@string/ping_text"
                 android:textColor="@color/whiteColor"
                 app:layout_constraintStart_toStartOf="@+id/view"
                 app:layout_constraintTop_toTopOf="@+id/view" />
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="70dp"
-                android:text="Download: "
+                android:text="@string/dl_text"
                 android:textColor="@color/whiteColor"
                 app:layout_constraintStart_toStartOf="@+id/view"
                 app:layout_constraintTop_toTopOf="@+id/view" />
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="90dp"
-                android:text="Upload: "
+                android:text="@string/ul_text"
                 android:textColor="@color/whiteColor"
                 app:layout_constraintStart_toStartOf="@+id/view"
                 app:layout_constraintTop_toTopOf="@+id/view" />

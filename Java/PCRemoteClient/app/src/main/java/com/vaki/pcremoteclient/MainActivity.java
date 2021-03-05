@@ -89,6 +89,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
     }
 
+    /**
+     *Beállítja a képernyő tetején lévő értesítési sáv szövegét és színét, valamint sikeres kapcsolódás esetén 3 másodperc múlva elrejti.
+     * 1:Sikeres kapcsolódás
+     * 2:Elveszett kapcsolat
+     * 3:Nincsenek még a szerver adatai beállítva
+     * 4:Rossz ip cím formátum van a beállításokban megadva
+     * 5:Rossz port formátum van a beállításokban megadva
+     *
+     * @param status A megjeleníteni kívánt elem kódja (int)
+     */
     public void changeStatusBar(final int status) {
         runOnUiThread(new Runnable() {
 
@@ -136,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    /**
+     * Az értesítési sáv eltüntetéséhez szükséges handler
+     */
     final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -148,7 +161,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.handleMessage(msg);
         }
     };
-
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
