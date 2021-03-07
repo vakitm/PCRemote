@@ -17,24 +17,18 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.regex.Pattern;
-
+//https://stackoverflow.com/questions/38162775/really-simple-tcp-client
 public class TcpClient {
 
-    public static final String TAG = TcpClient.class.getSimpleName();
-    public static final String SERVER_IP = "192.168.1.2"; //server IP address
-    // message to send to the server
+    private static final String TAG = TcpClient.class.getSimpleName();
     private String mServerMessage;
-    // sends message received notifications
     private OnMessageReceived mMessageListener = null;
-    // while this is true, the server will continue running
     private boolean mRun = false;
     private boolean allRun = true;
-    // used to send messages
     private PrintWriter mBufferOut;
-    // used to read messages from the server
     private BufferedReader mBufferIn;
 
-    public MainActivity mainActivity;
+    private MainActivity mainActivity;
 
     private SharedPreferences SP;
     private static final Pattern PORT_REGEX = Pattern.compile(
@@ -109,10 +103,8 @@ public class TcpClient {
                 mainActivity.changeStatusBar(1);
                 try {
 
-                    //sends the message to the server
                     mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8")), true);
 
-                    //receives the message which the server sends back
                     mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 
                     while (mRun) {

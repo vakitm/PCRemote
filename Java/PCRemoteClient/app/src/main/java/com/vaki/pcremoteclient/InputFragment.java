@@ -20,8 +20,7 @@ import org.json.JSONObject;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 public class InputFragment extends Fragment {
-    View touchBoard;
-    View rootView;
+    View touchBoard,rootView;
     FancyButton btn;
     Toast mToast;
     long click[] = {0, 0, 0};
@@ -82,8 +81,6 @@ public class InputFragment extends Fragment {
                 try {
                     switch (eventaction) {
                         case MotionEvent.ACTION_DOWN:
-                            //mToast.setText("ACTION_DOWN AT COORDS " + "X: " + X + " Y: " + Y);
-                            //mToast.show();
                             obj.put("a", "d");
                             obj.put("x", X);
                             obj.put("y", Y);
@@ -99,8 +96,6 @@ public class InputFragment extends Fragment {
 
                         case MotionEvent.ACTION_MOVE:
                             if (c % 3 == 0) {
-                                //mToast.setText("MOVE " + "X: " + X + " Y: " + Y);
-                                //mToast.show();
                                 obj.put("a", "m");
                                 obj.put("x", X);
                                 obj.put("y", Y);
@@ -112,8 +107,6 @@ public class InputFragment extends Fragment {
                             c++;
                             break;
                         case MotionEvent.ACTION_UP:
-                            //mToast.setText("ACTION_UP " + "X: " + X + " Y: " + Y);
-                            //mToast.show();
                             mHander.removeCallbacks(runObj);
                             hold = false;
                             if (System.currentTimeMillis() - click[0] < 500 && Math.sqrt(Math.pow(click[1] - X, 2) + Math.pow(click[2] - Y, 2)) < 20) {

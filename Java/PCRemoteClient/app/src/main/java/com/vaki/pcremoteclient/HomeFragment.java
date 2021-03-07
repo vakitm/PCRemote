@@ -27,15 +27,13 @@ import io.resourcepool.ssdp.model.SsdpRequest;
 import io.resourcepool.ssdp.model.SsdpService;
 import io.resourcepool.ssdp.model.SsdpServiceAnnouncement;
 
-public class HomeFragment extends Fragment implements View.OnClickListener {
-    View rootView, view;
-    TextView cpu, ram, ping, download, upload;
-
+public class HomeFragment extends Fragment {
+    private View rootView, view;
+    private TextView cpu, ram, ping, download, upload;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
         cpu = rootView.findViewById(R.id.cpu);
         ram = rootView.findViewById(R.id.ram);
@@ -53,32 +51,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         upload.setText(getString(R.string.ul_text,"-" ));
         return rootView;
     }
-
-    @Override
-    public void onClick(View view) {
-        Log.d("HomeFragment", "clicked");
-        ((MainActivity) getActivity()).mTcpClient.sendMessage("asd");
-        SsdpClient client = SsdpClient.create();
-        DiscoveryRequest all = SsdpRequest.discoverAll();
-        client.discoverServices(all, new DiscoveryListener() {
-            @Override
-            public void onServiceDiscovered(SsdpService service) {
-                Log.d("SSDP", "Found service: " + service);
-            }
-
-            @Override
-            public void onServiceAnnouncement(SsdpServiceAnnouncement announcement) {
-                Log.d("SSDP", "Service announced something: " + announcement);
-            }
-
-            @Override
-            public void onFailed(Exception e) {
-
-            }
-        });
-
-    }
-
     final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

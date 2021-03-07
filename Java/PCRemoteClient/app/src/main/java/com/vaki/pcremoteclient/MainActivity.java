@@ -201,40 +201,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
        } catch (JSONException ex) {
            ex.printStackTrace();
        }
-       //Log.d("dispatchKeyEvent", event.getKeyCode() + ":" + event.getUnicodeChar());
         return super.dispatchKeyEvent(event);
     }
-    /*@Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d("onKeyDown",event.getAction()+"");
-        JSONObject obj = new JSONObject();
-        String key;
-        if (event.getKeyCode() == 67)
-            key = "bs";
-        else if (event.getKeyCode() == 66)
-            key = "en";
-        else if (event.getKeyCode() == 24)
-            key = "vu";
-        else if (event.getKeyCode() == 25)
-            key = "vd";
-        else if (event.getKeyCode() == 59)
-            return super.onKeyDown(keyCode, event);
-        else
-            key = String.valueOf(event.getUnicodeChar());
-        try {
-            obj.put("a", "k");
-            obj.put("k", key);
-            mTcpClient.sendMessage(obj.toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Log.d("onKeyDown", event.getKeyCode() + ":" + event.getUnicodeChar());
-        return super.onKeyDown(keyCode, event);
-    }*/
-
     public void closeSoftKeyb() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
         imm.hideSoftInputFromWindow(findViewById(R.id.drawer_layout).getWindowToken(), 0);
     }
 

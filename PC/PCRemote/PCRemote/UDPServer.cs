@@ -21,6 +21,7 @@ namespace PCRemote
         {
             this.mainForm = mainForm;
         }
+        //https://stackoverflow.com/questions/22852781/how-to-do-network-discovery-using-udp-broadcast
         public void startServer()
         {
             if (autoDiscoveryServerThread != null) autoDiscoveryServerThread.Abort();
