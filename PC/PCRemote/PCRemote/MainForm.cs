@@ -19,27 +19,27 @@ namespace PCRemote
 {
     public partial class MainForm : Form
     {
-        Thread autoDiscoveryServerThread;
-        SimpleTcpServer server;
-        List<TcpClient> connectedClients = new List<TcpClient>();
-        PerformanceCounter cpuCounter;
-        PerformanceCounter ramCounter;
+        
+        private TCPServer tcpServer;
+        private UDPServer autoDiscoveryServer;
+        private PerformanceCounter cpuCounter;
+        private PerformanceCounter ramCounter;
 
-        public const int MOUSEEVENTF_LEFTDOWN = 0x02;
-        public const int MOUSEEVENTF_LEFTUP = 0x04;
-        public const int MOUSEEVENTF_RIGHTDOWN = 0x08;
-        public const int MOUSEEVENTF_RIGHTUP = 0x10;
+        private const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        private const int MOUSEEVENTF_LEFTUP = 0x04;
+        private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
+        private const int MOUSEEVENTF_RIGHTUP = 0x10;
 
         private const int APPCOMMAND_VOLUME_MUTE = 0x80000;
         private const int APPCOMMAND_VOLUME_UP = 0xA0000;
         private const int APPCOMMAND_VOLUME_DOWN = 0x90000;
         private const int WM_APPCOMMAND = 0x319;
 
-        int availableRam;
-        long down = 0, up = 0;
-        int x = 0, y = 0;
-        int port = Convert.ToInt32(Properties.Settings.Default.serverport.ToString());
-        int discoveryPort = Convert.ToInt32(Properties.Settings.Default.discoveryport.ToString());
+        private int availableRam;
+        private long down = 0, up = 0;
+        private int x = 0, y = 0;
+        private int port = Convert.ToInt32(Properties.Settings.Default.serverport.ToString());
+        private int discoveryPort = Convert.ToInt32(Properties.Settings.Default.discoveryport.ToString());
 
         #region ###### SystemCalls ######
         [DllImport("Powrprof.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
@@ -76,8 +76,7 @@ namespace PCRemote
             cpuCounter.CategoryName = "Processor";
             cpuCounter.CounterName = "% Processor Time";
             cpuCounter.InstanceName = "_Total";
-            var info = new Microsoft.VisualBasic.Devices.ComputerInfo();
-            availableRam = Convert.ToInt32(info.TotalPhysicalMemory / 1024 / 1024);
+            availableRam = Convert.ToInt32(new Microsoft.VisualBasic.Devices.ComputerInfo().TotalPhysicalMemory / 1024 / 1024);
             ramCounter = new PerformanceCounter("Memory", "Available MBytes");
             notifyIconMain.ContextMenuStrip = notifyIconMain_menu;
             openprogram.Click += new EventHandler(contextmenu_click);
@@ -94,113 +93,17 @@ namespace PCRemote
             minimize.Checked = Convert.ToBoolean(Properties.Settings.Default.minimized.ToString());
             autostart.Checked = Convert.ToBoolean(Properties.Settings.Default.autostart.ToString());
 
-            startServer();
-            startAutoDiscoveryServer();
-        }
-        #region ###### SERVER ######
-        private void startAutoDiscoveryServer()
-        {
-            if (autoDiscoveryServerThread != null) autoDiscoveryServerThread.Abort();
-            autoDiscoveryServerThread = new Thread(() =>
-            {
-                  try
-                  {
-                    Thread.CurrentThread.IsBackground = true;
-                    var Server = new UdpClient(discoveryPort);
-                    while (true)
-                    {
-                        var ClientEp = new IPEndPoint(IPAddress.Any, 0);
-                        var ClientRequestData = Server.Receive(ref ClientEp);
-                        var ClientRequest = Encoding.ASCII.GetString(ClientRequestData);
+            tcpServer = new TCPServer(this);
+            tcpServer.startServer();
 
-                        Console.WriteLine("Recived {0} from {1}, sending response", ClientRequest, ClientEp.Address.ToString());
-                        var ResponseData = Encoding.ASCII.GetBytes("PCREMOTE_DISCOVER_RESPONSE:" + port);
-                        Server.Send(ResponseData, ResponseData.Length, ClientEp);
-                    }
-                 }
-                 catch(System.Net.Sockets.SocketException)
-                {
-                }
-            });
-            autoDiscoveryServerThread.Start();
+            autoDiscoveryServer = new UDPServer(this);
+            autoDiscoveryServer.startServer();
         }
-        private void stopServer()
-        {
-            foreach (TcpClient tc in connectedClients)
-                tc.Close();
-            server.Stop();
-            changeStatusBar("Server is stopped", Color.FromArgb(255, 136, 0));
-        }
-
-        private void startServer()
-        {
-            try
-            {
-                server = new SimpleTcpServer();
-                server.Delimiter = 0x13;
-                server.DataReceived += Server_DataReceived;
-                server.ClientConnected += Server_ClientConnected;
-                server.ClientDisconnected += Server_ClientDisconnected;
-                server.StringEncoder = Encoding.UTF8;
-                server.Start(System.Net.IPAddress.Parse("0.0.0.0"), port);
-                changeStatusBar("Server is running", Color.FromArgb(28, 198, 28));
-            }
-            catch(System.Net.Sockets.SocketException)
-            {
-                changeStatusBar("Server port:" + port + " is being used by another application", Color.FromArgb(255, 136, 0));
-            }
-            
-        }
-        private void Server_ClientDisconnected(object sender, TcpClient e)
-        {
-
-            Debug.WriteLine("Disconnected");
-            connectedClients.Remove(e);
-            connectedcount.Invoke((MethodInvoker)delegate
-            {
-                connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
-            });
-        }
-
-        private void Server_ClientConnected(object sender, TcpClient e)
-        {
-            Debug.WriteLine("Connected");
-                connectedClients.Add(e);
-                connectedcount.Invoke((MethodInvoker)delegate
-                {
-                    connectedcount.Text = "Connected clients: " + server.ConnectedClientsCount;
-                });
-        }
-
-        private void Server_DataReceived(object sender, SimpleTCP.Message e)
-        {
-            Debug.WriteLine("|||" + e.MessageString + "|||");
-            string message = e.MessageString;
-            try
-            {
-                if (e.MessageString.Contains("}{"))
-                {
-                    Debug.WriteLine("Found:" + e.MessageString + " Found");
-                    int c = 0;
-                    string[] split = message.Split(new string[] { "}{" }, StringSplitOptions.None);
-                    foreach (string asd in split)
-                    {
-                        if (c == 0)
-                            processJson(asd + '}');
-                        else if (c == split.Length - 1)
-                            processJson('{' + asd);
-                        else
-                            processJson('{' + asd + '}');
-                        c++;
-                    }
-                }
-                else processJson(message);
-            }
-            catch (JsonReaderException)
-            {
-            }
-        }
-        private void processJson(string message)
+        /// <summary>
+        /// A telefontól kapott JSON formátumban lévő parancsokat dolgozza fel
+        /// </summary>
+        /// <param name="message">A JSON kód</param>
+        public void processJson(string message)
         {
             try
             {
@@ -316,7 +219,7 @@ namespace PCRemote
                         {
                             Invoke(new Action(delegate
                             {
-                                stopServer();
+                                tcpServer.stopServer();
                                 SetSuspendState(false, true, true);
                             }));
                         });
@@ -327,7 +230,7 @@ namespace PCRemote
                         {
                             Invoke(new Action(delegate
                             {
-                                stopServer();
+                                tcpServer.stopServer();
                                 SetSuspendState(true, true, true);
                             }));
                         });
@@ -353,10 +256,13 @@ namespace PCRemote
             }
             catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
         }
-        #endregion
 
 
         #region ###### METHODS ######
+        /// <summary>
+        /// A számítógép hangerejét állítja 
+        /// </summary>
+        /// <param name="Iparam">Hexadecimális kódok</param>
         public void VolumeControl(int Iparam)
         {
             ThreadPool.QueueUserWorkItem(delegate
@@ -368,17 +274,28 @@ namespace PCRemote
             });
             
         }
+        /// <summary>
+        /// Bal egér kattintást szimulál
+        /// </summary>
         public static void LeftMouseClick()
         {
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
+        /// <summary>
+        /// Bal egér kattintást szimulál
+        /// </summary>
         public static void RightMouseClick()
         {
             mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
             mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
-        private void changeStatusBar(string text, Color color)
+        /// <summary>
+        /// Az állapotsáv szövegét és színét állítja át
+        /// </summary>
+        /// <param name="text">A kiírandó szöveg</param>
+        /// <param name="color">Az beállítandó szín</param>
+        public void changeStatusBar(string text, Color color)
         {
             statusBar.BackColor = color;
             statusText.Text = text;
@@ -388,10 +305,26 @@ namespace PCRemote
             else
                 statusText.Location = new Point(400, 33);
         }
+        /// <summary>
+        /// A kapcsolódott kliensek számának értékét állítja át a Formban
+        /// </summary>
+        /// <param name="value">A kapcsolódott kliensek száma</param>
+        public void updateConnectedCLientsText(int value)
+        {
+            connectedcount.Invoke((MethodInvoker)delegate
+            {
+                connectedcount.Text = "Connected clients: " + value;
+            });
+        }
         #endregion
 
 
         #region ###### EVENTS ######
+        /// <summary>
+        /// A form betölésekor hívódik meg, amennyiben az indítás minimalizált módban be van állítva ez a rész minimalizálja a Formot.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (!Convert.ToBoolean(Properties.Settings.Default.minimized.ToString())) return;
@@ -401,6 +334,11 @@ namespace PCRemote
             }));
             this.Location = new Point((Screen.PrimaryScreen.Bounds.Size.Width / 2) - (this.Size.Width / 2), (Screen.PrimaryScreen.Bounds.Size.Height / 2) - (this.Size.Height / 2));
         }
+        /// <summary>
+        /// A tálcaikonon jobbklikkelés után megjelenő menü elemekre való kattintáskor hívódik meg.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void contextmenu_click(object sender, EventArgs e)
         {
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
@@ -418,6 +356,11 @@ namespace PCRemote
                     break;
             }
         }
+        /// <summary>
+        /// A számítógép adatait küldi el a telefonnak 5 másodpercenként.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void statusTimer_Tick(object sender, EventArgs e)
         {
             int ping = 0;
@@ -447,7 +390,7 @@ namespace PCRemote
             catch { networkstatus = false; }
             try
             {
-                if (server.ConnectedClientsCount != 0)
+                if (tcpServer.getConnectedClientsCount() != 0)
                 {
                     CheckIn checkin = new CheckIn
                     {
@@ -460,12 +403,16 @@ namespace PCRemote
                         network = networkstatus
                     };
                     string json = JsonConvert.SerializeObject(checkin, Formatting.None);
-                    server.Broadcast(json + Environment.NewLine);
-                    //Debug.WriteLine(json);
+                    tcpServer.Broadcast(json + Environment.NewLine);
                 }
             }
             catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
         }
+        /// <summary>
+        /// A számítógép elalvásakor vagy felébresztésekor hívódik meg.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             switch (e.Mode)
@@ -473,33 +420,51 @@ namespace PCRemote
                 case PowerModes.Suspend:
                     break;
                 case PowerModes.Resume:
-                    startServer();
+                    tcpServer.startServer();
                     break;
             }
 
         }
+        /// <summary>
+        /// Az autómatikus szerverkeresés portját állítja át.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void autodiscoveryNumeric_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.discoveryport = Convert.ToInt32(autodiscoveryNumeric.Value);
             Properties.Settings.Default.Save();
             discoveryPort = Convert.ToInt32(autodiscoveryNumeric.Value);
-            startAutoDiscoveryServer();
+            autoDiscoveryServer.startServer();
         }
-
+        /// <summary>
+        /// A szerver portját állítja át
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void portNumeric_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.serverport = Convert.ToInt32(portNumeric.Value);
             Properties.Settings.Default.Save();
             port = Convert.ToInt32(portNumeric.Value);
-            stopServer();
-            startServer();
+            tcpServer.stopServer();
+            tcpServer.startServer();
         }
+        /// <summary>
+        /// A minimalizált módban indítást kapcsolja ki vagy be a checkbox-ra kattintva
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void minimize_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.minimized = minimize.Checked;
             Properties.Settings.Default.Save();
         }
-
+        /// <summary>
+        /// A rendszerrel való indítást kapcsolja ki vagy be a checkbox-ra kattintva
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void autostart_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.autostart = autostart.Checked;
@@ -511,6 +476,11 @@ namespace PCRemote
             else
                 rk.DeleteValue("PCRemote Server", false);
         }
+        /// <summary>
+        /// A tálcán lévő ikonra kattintva minimalizálja vagy előtérbe hozza a programot
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void notifyIconMain_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -558,24 +528,43 @@ namespace PCRemote
 
 
         #region ###### GETTERS ######
-        private string getLocalIP()
+        /// <summary>
+        /// Visszatér az aktuálisan beállított szerver portjával
+        /// </summary>
+        /// <returns></returns>
+        public int getPort()
         {
-            String strHostName = Dns.GetHostName();
-            IPHostEntry ipHostEntry = Dns.GetHostEntry(strHostName);
-            IPAddress[] address = ipHostEntry.AddressList;
-            return address[4].ToString();
+            return port;
         }
+        /// <summary>
+        /// Visszatér az aktuálisan beállított autómatikus szerver keresés portjával
+        /// </summary>
+        /// <returns></returns>
+        public int getDiscoveryPort()
+        {
+            return discoveryPort;
+        }
+        /// <summary>
+        /// Visszatér az aktuális processzor terheléssek %-ban
+        /// </summary>
+        /// <returns></returns>
         public double getCurrentCpuUsage()
         {
             return cpuCounter.NextValue();
         }
-
+        /// <summary>
+        /// Visszatér az aktuális RAM használattal %-ban
+        /// </summary>
+        /// <returns></returns>
         public double getRAMUsage()
         {
             return ((availableRam - ramCounter.NextValue()) / availableRam) * 100;
         }
         #endregion
     }
+    /// <summary>
+    /// A számítógép adatainak JSON formátumban való küldéséhez szükséges osztály 
+    /// </summary>
     class CheckIn
     {
         public string task { get; set; }
