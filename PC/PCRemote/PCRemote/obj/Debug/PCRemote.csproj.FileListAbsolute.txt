@@ -14,20 +14,6 @@ C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.
 C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\SimpleTCP.dll
 C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Vaki\Documents\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csprojAssemblyReference.cache
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.MainForm.resources
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.Properties.Resources.resources
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.GenerateResource.cache
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CoreCompileInputs.cache
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.exe.config
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.exe
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.pdb
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\SimpleTCP.dll
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CopyComplete
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.exe
-C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.pdb
 C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\bin\Debug\PCRemote.exe.config
 C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\bin\Debug\PCRemote.exe
 C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\bin\Debug\PCRemote.pdb
@@ -42,3 +28,17 @@ C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\obj\Debug\PCRemote.csproj.CoreCom
 C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\obj\Debug\PCRemote.csproj.CopyComplete
 C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\obj\Debug\PCRemote.exe
 C:\Users\Vaki\Desktop\PCRemote - Copy\PCRemote\obj\Debug\PCRemote.pdb
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.exe.config
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.exe
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\PCRemote.pdb
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\SimpleTCP.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csprojAssemblyReference.cache
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.MainForm.resources
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.Properties.Resources.resources
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.GenerateResource.cache
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CoreCompileInputs.cache
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CopyComplete
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.exe
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.pdb

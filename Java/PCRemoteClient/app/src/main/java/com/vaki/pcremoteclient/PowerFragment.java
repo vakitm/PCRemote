@@ -14,12 +14,8 @@ import org.json.JSONObject;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 public class PowerFragment extends Fragment implements View.OnClickListener {
-    View rootView;
-    FancyButton btn_shutdown, btn_restart, btn_sleep, btn_hibernate, btn_logoff, btn_lock;
-
-    public PowerFragment() {
-    }
-
+    private View rootView;
+    private FancyButton btn_shutdown, btn_restart, btn_sleep, btn_hibernate, btn_logoff, btn_lock;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +41,10 @@ public class PowerFragment extends Fragment implements View.OnClickListener {
         return rootView;
     }
 
+    /**
+     * Az energiagazdálkodás oldalon lévő összes gombnak a kattintás eseményfigyelője
+     * @param ve
+     */
     @Override
     public void onClick(View ve) {
         FancyButton v = (FancyButton) ve;
@@ -53,28 +53,32 @@ public class PowerFragment extends Fragment implements View.OnClickListener {
             switch (v.getId()) {
                 case R.id.btn_shutdown:
                     obj.put("a", "sd");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
 
                 case R.id.btn_restart:
                     obj.put("a", "rs");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
+
                 case R.id.btn_sleep:
                     obj.put("a", "sl");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
+
                 case R.id.btn_hibernate:
                     obj.put("a", "hb");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
+
                 case R.id.btn_logoff:
                     obj.put("a", "lo");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
+
                 case R.id.btn_lock:
                     obj.put("a", "lk");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
             }
         } catch (JSONException e) {

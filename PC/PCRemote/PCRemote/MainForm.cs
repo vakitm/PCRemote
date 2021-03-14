@@ -283,7 +283,7 @@ namespace PCRemote
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
         /// <summary>
-        /// Bal egér kattintást szimulál
+        /// Jobb egér kattintást szimulál
         /// </summary>
         public static void RightMouseClick()
         {

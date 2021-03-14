@@ -14,11 +14,8 @@ import org.json.JSONObject;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 public class VolumeControlFragment extends Fragment implements View.OnClickListener {
-    View rootView;
-    FancyButton btn_up, btn_down, btn_mute;
-
-    public VolumeControlFragment() {
-    }
+    private View rootView;
+    private FancyButton btn_up, btn_down, btn_mute;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +35,10 @@ public class VolumeControlFragment extends Fragment implements View.OnClickListe
         return rootView;
     }
 
+    /**
+     * A hangerőszabályzás oldalon lévő összes gomb kattintás eseményfigyelője
+     * @param ve
+     */
     @Override
     public void onClick(View ve) {
         FancyButton v = (FancyButton) ve;
@@ -46,15 +47,15 @@ public class VolumeControlFragment extends Fragment implements View.OnClickListe
             switch (v.getId()) {
                 case R.id.btn_up:
                     obj.put("a", "vu");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
                 case R.id.btn_down:
                     obj.put("a", "vd");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
                 case R.id.btn_mute:
                     obj.put("a", "vm");
-                    ((MainActivity) getActivity()).mTcpClient.sendMessage(obj.toString());
+                    ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
             }
         } catch (JSONException e) {

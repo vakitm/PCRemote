@@ -51,6 +51,10 @@ public class HomeFragment extends Fragment {
         upload.setText(getString(R.string.ul_text,"-" ));
         return rootView;
     }
+
+    /**
+     * Handler a számítógép adatinak fogadásához a MainActivity-től, és azok megjelenítése
+     */
     final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

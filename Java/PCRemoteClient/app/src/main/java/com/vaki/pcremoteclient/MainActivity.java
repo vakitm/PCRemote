@@ -36,15 +36,15 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawer;
-    TcpClient mTcpClient;
-    public LinearLayout statusbar;
-    public TextView statusbar_text;
-    public Timer timerRef;
+    private TcpClient mTcpClient;
+    private LinearLayout statusbar;
+    private TextView statusbar_text;
+    private Timer timerRef;
     private FragmentManager fm;
-    public int currentFragment;
+    private int currentFragment;
     private SharedPreferences SP;
-    NavigationView navigationView;
-    AsyncTask ConnectTask;
+    private NavigationView navigationView;
+    private AsyncTask ConnectTask;
 
 
     @Override
@@ -80,15 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ConnectTask = new ConnectTask(this);
         Log.d("MainActivity", "onCreate();");
     }
-
-    @Override
-    protected void onDestroy() {
-        mTcpClient.stopClient();
-        ConnectTask.cancel(true);
-        Log.d("MainActivity", "OnPause()");
-        super.onDestroy();
-    }
-
     /**
      *Beállítja a képernyő tetején lévő értesítési sáv szövegét és színét, valamint sikeres kapcsolódás esetén 3 másodperc múlva elrejti.
      * 1:Sikeres kapcsolódás
@@ -161,77 +152,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.handleMessage(msg);
         }
     };
-    @Override
-    public void onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-   @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-       //Log.d("dispatchKeyEvent",event.getAction()+"");
-       if(event.getAction()==0)
-           return super.dispatchKeyEvent(event);
-       JSONObject obj = new JSONObject();
-       String key;
-       if (event.getKeyCode() == 67)
-           key = "bs";
-       else if (event.getKeyCode() == 66)
-           key = "en";
-       else if (event.getKeyCode() == 24)
-           key = "vu";
-       else if (event.getKeyCode() == 25)
-           key = "vd";
-       else if (event.getKeyCode() == 59)
-           return super.dispatchKeyEvent(event);
-       else if(event.getAction()==2)
-           key=event.getCharacters();
-       else
-           key = String.valueOf(event.getUnicodeChar());
-       try {
-           obj.put("a", "k");
-           obj.put("k", key);
-           if(event.getMetaState()==KeyEvent.META_SHIFT_ON)
-               obj.put("cpt","1");
-           else
-               obj.put("cpt","0");
-           mTcpClient.sendMessage(obj.toString());
-       } catch (JSONException ex) {
-           ex.printStackTrace();
-       }
-        return super.dispatchKeyEvent(event);
-    }
+
+    /**
+     * Bezárja a szoftveres billentyűzetet
+     */
     public void closeSoftKeyb() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(findViewById(R.id.drawer_layout).getWindowToken(), 0);
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        closeSoftKeyb();
-        switch (menuItem.getItemId()) {
-            case R.id.nav_home:
-                changeFragment(1);
-                break;
-            case R.id.nav_input:
-                changeFragment(2);
-                break;
-            case R.id.nav_volume:
-                changeFragment(3);
-                break;
-            case R.id.nav_power:
-                changeFragment(4);
-                break;
-            case R.id.nav_settings:
-                changeFragment(5);
-                break;
-        }
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+    /**
+     * Elküld ez üzenetet a szervernek.
+     * @param message Az üzenet
+     */
+    public void sendToServer(String message)
+    {
+        mTcpClient.sendMessage(message);
     }
-
+    /**
+     * Fragmentet vált a képernyőn.
+     * 1:Kezdőlap
+     * 2:Alapvető bemenetek
+     * 3:Hangerő szabályozás
+     * 4:Energiagazdálkodás
+     * 5:Beállítások
+     * @param id A fragment azonosítója (int)
+     */
     public void changeFragment(int id) {
         SharedPreferences.Editor editor = SP.edit();
         switch (id) {
@@ -279,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
     }
 
+    /**
+     * A szerverhez való kapcsolódást indítja el.
+     */
     public class ConnectTask extends AsyncTask<String, String, TcpClient> {
 
         MainActivity mainActivity;
@@ -314,5 +263,78 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
     }
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        //Log.d("dispatchKeyEvent",event.getAction()+"");
+        if(event.getAction()==0)
+            return super.dispatchKeyEvent(event);
+        JSONObject obj = new JSONObject();
+        String key;
+        if (event.getKeyCode() == 67)
+            key = "bs";
+        else if (event.getKeyCode() == 66)
+            key = "en";
+        else if (event.getKeyCode() == 24)
+            key = "vu";
+        else if (event.getKeyCode() == 25)
+            key = "vd";
+        else if (event.getKeyCode() == 59)
+            return super.dispatchKeyEvent(event);
+        else if(event.getAction()==2)
+            key=event.getCharacters();
+        else
+            key = String.valueOf(event.getUnicodeChar());
+        try {
+            obj.put("a", "k");
+            obj.put("k", key);
+            if(event.getMetaState()==KeyEvent.META_SHIFT_ON)
+                obj.put("cpt","1");
+            else
+                obj.put("cpt","0");
+            mTcpClient.sendMessage(obj.toString());
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+        return super.dispatchKeyEvent(event);
+    }
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        closeSoftKeyb();
+        switch (menuItem.getItemId()) {
+            case R.id.nav_home:
+                changeFragment(1);
+                break;
+            case R.id.nav_input:
+                changeFragment(2);
+                break;
+            case R.id.nav_volume:
+                changeFragment(3);
+                break;
+            case R.id.nav_power:
+                changeFragment(4);
+                break;
+            case R.id.nav_settings:
+                changeFragment(5);
+                break;
+        }
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    @Override
+    protected void onDestroy() {
+        mTcpClient.stopClient();
+        ConnectTask.cancel(true);
+        Log.d("MainActivity", "OnPause()");
+        super.onDestroy();
+    }
+
 }
 

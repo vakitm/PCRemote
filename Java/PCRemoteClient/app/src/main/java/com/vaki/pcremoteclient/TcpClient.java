@@ -1,7 +1,6 @@
 package com.vaki.pcremoteclient;
 
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Patterns;
@@ -17,6 +16,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.regex.Pattern;
+
 //https://stackoverflow.com/questions/38162775/really-simple-tcp-client
 public class TcpClient {
 
@@ -27,9 +27,7 @@ public class TcpClient {
     private boolean allRun = true;
     private PrintWriter mBufferOut;
     private BufferedReader mBufferIn;
-
     private MainActivity mainActivity;
-
     private SharedPreferences SP;
     private static final Pattern PORT_REGEX = Pattern.compile(
             "^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$");
@@ -40,6 +38,10 @@ public class TcpClient {
         SP = PreferenceManager.getDefaultSharedPreferences(mainActivity.getBaseContext());
     }
 
+    /**
+     * Üzenetet küld a szervernek.
+     * @param message Az üzenet szövege
+     */
     public void sendMessage(final String message) {
         Runnable runnable = new Runnable() {
             @Override
@@ -56,6 +58,9 @@ public class TcpClient {
         thread.start();
     }
 
+    /**
+     * Leállítja a TCP klienst.
+     */
     public void stopClient() {
 
         mRun = false;
@@ -72,6 +77,9 @@ public class TcpClient {
         allRun = false;
     }
 
+    /**
+     * Elindítja a TCP klienst.
+     */
     public void run() {
 
         mRun = true;

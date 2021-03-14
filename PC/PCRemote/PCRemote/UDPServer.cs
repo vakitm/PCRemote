@@ -13,15 +13,15 @@ namespace PCRemote
     {
         private MainForm mainForm;
         private Thread autoDiscoveryServerThread;
-        /// <summary>
-        /// Elindítja az autómaikus szerver megtaláláshoz használt UDP szervert
-        /// </summary>
 
         public UDPServer(MainForm mainForm)
         {
             this.mainForm = mainForm;
         }
         //https://stackoverflow.com/questions/22852781/how-to-do-network-discovery-using-udp-broadcast
+        /// <summary>
+        /// Elindítja az autómaikus szerver megtaláláshoz használt UDP szervert
+        /// </summary>
         public void startServer()
         {
             if (autoDiscoveryServerThread != null) autoDiscoveryServerThread.Abort();
