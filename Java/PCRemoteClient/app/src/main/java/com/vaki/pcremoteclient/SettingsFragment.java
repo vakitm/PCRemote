@@ -18,6 +18,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Enumeration;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -53,27 +54,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         } catch (Exception e) {
                         }
                         Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
-                        while (interfaces.hasMoreElements()) {
-                            NetworkInterface networkInterface = (NetworkInterface) interfaces.nextElement();
 
-                            if (networkInterface.isLoopback() || !networkInterface.isUp()) {
-                                continue;
-                            }
-
-                            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
-                                InetAddress broadcast = interfaceAddress.getBroadcast();
-                                if (broadcast == null) {
-                                    continue;
-                                }
-                                try {
-                                    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, Integer.parseInt(autoDiscoveryPortPreference.getText()));
-                                    c.send(sendPacket);
-                                } catch (Exception e) {
-                                }
-
-                                Log.d("ssdp", getClass().getName() + ">>> Request packet sent to: " + broadcast.getHostAddress() + "; Interface: " + networkInterface.getDisplayName());
-                            }
-                        }
+                        sendPackets(interfaces,sendData,c);
 
                         Log.d("ssdp", getClass().getName() + ">>> Done looping over all network interfaces. Now waiting for a reply!");
 
@@ -115,6 +97,29 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             }, 5000);
             return true;
+        }
+        private void sendPackets(Enumeration interfaces,byte[] sendData,DatagramSocket c) throws SocketException {
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = (NetworkInterface) interfaces.nextElement();
+
+                if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+                    continue;
+                }
+
+                for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
+                    InetAddress broadcast = interfaceAddress.getBroadcast();
+                    if (broadcast == null) {
+                        continue;
+                    }
+                    try {
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, Integer.parseInt(autoDiscoveryPortPreference.getText()));
+                        c.send(sendPacket);
+                    } catch (Exception e) {
+                    }
+
+                    Log.d("ssdp", getClass().getName() + ">>> Request packet sent to: " + broadcast.getHostAddress() + "; Interface: " + networkInterface.getDisplayName());
+                }
+            }
         }
     };
     @Override

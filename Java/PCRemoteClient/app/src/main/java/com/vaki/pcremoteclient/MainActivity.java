@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Elküld ez üzenetet a szervernek.
+     * Elküld egy üzenetet a szervernek.
      * @param message Az üzenet
      */
     public void sendToServer(String message)
@@ -295,15 +295,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             obj.put("a", "k");
             obj.put("k", key);
-            if(event.getMetaState()==KeyEvent.META_SHIFT_ON)
-                obj.put("cpt","1");
-            else
-                obj.put("cpt","0");
+            obj.put("cpt",isShiftOn(event));
             mTcpClient.sendMessage(obj.toString());
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
         return super.dispatchKeyEvent(event);
+    }
+    private String isShiftOn(KeyEvent event)
+    {
+        if(event.getMetaState()==KeyEvent.META_SHIFT_ON)
+           return "1";
+        else
+          return "0";
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {

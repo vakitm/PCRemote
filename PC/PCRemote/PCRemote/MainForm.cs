@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using SimpleTCP;
 using Newtonsoft.Json;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
-using System.Net;
 using System.Text.RegularExpressions;
 
 namespace PCRemote
@@ -99,11 +95,12 @@ namespace PCRemote
             autoDiscoveryServer = new UDPServer(this);
             autoDiscoveryServer.startServer();
         }
+        #region ###### METHODS ######
         /// <summary>
         /// A telefontól kapott JSON formátumban lévő parancsokat dolgozza fel
         /// </summary>
         /// <param name="message">A JSON kód</param>
-        public void processJson(string message)
+        public string processJson(string message)
         {
             try
             {
@@ -111,184 +108,229 @@ namespace PCRemote
                 switch (json["a"])
                 {
                     case "d":
-
                         x = Convert.ToInt32(json["x"]);
                         y = Convert.ToInt32(json["y"]);
-                        break;
+                        return "SetCords";
                     case "k":
-                        if (json["k"] == "bs")
-                            keybd_event((byte)0x08, 0x9e, 0, 0);
-                        else if (json["k"] == "en")
-                            keybd_event((byte)System.Windows.Forms.Keys.Enter, 0x45, 0, 0);
-                        else if (json["k"] == "vu")
-                            VolumeControl(APPCOMMAND_VOLUME_UP);
-                        else if (json["k"] == "vd")
-                            VolumeControl(APPCOMMAND_VOLUME_DOWN);
-                        else
-                        {
-                            byte keybd;
-                            bool isCapital;
-                            if (int.TryParse(json["k"], out _))
-                            {
-                                char key = Convert.ToChar(Convert.ToInt32(json["k"]));
-                                Debug.WriteLine(Convert.ToString(key));
-                                Debug.WriteLine(VkKeyScan(key));
-                                if (json["cpt"] == "1")
-                                {
-                                    if (VkKeyScan(key) > 255)
-                                    {
-                                        SendKeys.SendWait(Regex.Replace(key + "", "[+^%~()]", "{$0}") + "");
-                                        Debug.WriteLine("SendKeys");
-                                        return;
-                                    }
-                                    else
-                                        keybd = Convert.ToByte(key);
-                                    isCapital = true;
-                                }
-                                else
-                                {
-                                    if (VkKeyScan(key) > 255)
-                                    {
-                                        SendKeys.SendWait(Regex.Replace(key + "", "[+^%~()]", "{$0}") + "");
-                                        Debug.WriteLine("SendKeys");
-                                        return;
-                                    }
-                                    else
-                                        keybd = Convert.ToByte(VkKeyScan(key));
-                                    isCapital = false;
-                                }
-                            }
-                            else
-                            {
-                                if (Char.IsUpper(Convert.ToChar(json["k"])))
-                                    isCapital = true;
-                                else
-                                    isCapital = false;
-                                keybd = Convert.ToByte(VkKeyScan(Char.ToLower(Convert.ToChar(json["k"]))));
-                            }
-                            if (isCapital)
-                                keybd_event(16, 0, 0, 0);
-
-                            keybd_event(keybd, 0x9e, 0, 0);
-
-                            if (isCapital)
-                                keybd_event(16, 0, 0x0002, 0);
-                        }
-                        break;
+                        keypressProcess(json["k"], json["cpt"]);
+                        return "KeyPress";
                     case "m":
-                        ThreadPool.QueueUserWorkItem(delegate
-                        {
-                            Invoke(new Action(delegate
-                            {
-
-                                int xmove, ymove;
-                                if (x > Convert.ToInt32(json["x"]))
-                                    xmove = x - Convert.ToInt32(json["x"]);
-                                else if (x < Convert.ToInt32(json["x"]))
-                                    xmove = x - Convert.ToInt32(json["x"]);
-                                else xmove = 0;
-                                if (y > Convert.ToInt32(json["y"]))
-                                    ymove = y - Convert.ToInt32(json["y"]);
-                                else if (y < Convert.ToInt32(json["y"]))
-                                    ymove = y - Convert.ToInt32(json["y"]);
-                                else ymove = 0;
-                                this.Cursor = new Cursor(Cursor.Current.Handle);
-                                Cursor.Position = new Point(Cursor.Position.X - xmove, Cursor.Position.Y - ymove);
-                                x = Convert.ToInt32(json["x"]);
-                                y = Convert.ToInt32(json["y"]);
-                            }));
-                        });
-                        break;
-                    case "lc":
-                        LeftMouseClick();
-                        break;
-                    case "rc":
-                        RightMouseClick();
-                        break;
-                    case "sd":
-                        Debug.WriteLine("Shut down");
-                        Process.Start("shutdown", "/s /t 0");
-                        break;
-                    case "rs":
-                        Debug.WriteLine("Restart");
-                        Process.Start("shutdown.exe", "/r /t 0");
-                        break;
-                    case "sl":
-                        Debug.WriteLine("Sleep");
-                        ThreadPool.QueueUserWorkItem(delegate
-                        {
-                            Invoke(new Action(delegate
-                            {
-                                tcpServer.stopServer();
-                                SetSuspendState(false, true, true);
-                            }));
-                        });
-                        break;
-                    case "hb":
-                        Debug.WriteLine("Hibernate");
-                        ThreadPool.QueueUserWorkItem(delegate
-                        {
-                            Invoke(new Action(delegate
-                            {
-                                tcpServer.stopServer();
-                                SetSuspendState(true, true, true);
-                            }));
-                        });
-                        break;
-                    case "lo":
-                        Debug.WriteLine("Log off");
-                        ExitWindowsEx(0, 0);
-                        break;
-                    case "lk":
-                        LockWorkStation();
-                        Debug.WriteLine("Lock");
-                        break;
-                    case "vu":
-                        VolumeControl(APPCOMMAND_VOLUME_UP);
-                        break;
-                    case "vd":
-                        VolumeControl(APPCOMMAND_VOLUME_DOWN);
-                        break;
-                    case "vm":
-                        VolumeControl(APPCOMMAND_VOLUME_MUTE);
-                        break;
+                        cursorMove(Convert.ToInt32(json["x"]), Convert.ToInt32(json["y"]));
+                        return "CursorMove";
+                    case "mc":
+                        return SimulateMouseClick(json["o"]);
+                    case "pm":
+                        return PowerManager(json["o"]);
+                    case "vc":
+                        return VolumeControl(json["o"]);
+                    default:
+                        return "CommandNotFound";
                 }
             }
-            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+            catch (Exception ex) 
+            { 
+                Debug.WriteLine(ex.ToString());
+                return "BadJsonFormat";
+            }
         }
-
-
-        #region ###### METHODS ######
         /// <summary>
-        /// A számítógép hangerejét állítja 
+        /// A kikapcsolás és egyéb energia gazdálkodási parancsokat hajtja végre
         /// </summary>
-        /// <param name="Iparam">Hexadecimális kódok</param>
-        public void VolumeControl(int Iparam)
+        /// <param name="option">A folyamat kódja</param>
+        private string PowerManager(string option)
+        {
+            switch (option)
+            {
+                case "sd":
+                    Debug.WriteLine("Shut down");
+                    Process.Start("shutdown", "/s /t 0");
+                    return "ShutDown";
+                case "rs":
+                    Debug.WriteLine("Restart");
+                    Process.Start("shutdown.exe", "/r /t 0");
+                    return "Restart";
+                case "sl":
+                    Debug.WriteLine("Sleep");
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            tcpServer.stopServer();
+                            SetSuspendState(false, true, true);
+                        }));
+                    });
+                    return "Sleep";
+                case "hb":
+                    Debug.WriteLine("Hibernate");
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            tcpServer.stopServer();
+                            SetSuspendState(true, true, true);
+                        }));
+                    });
+                    return "Hibernate";
+                case "lo":
+                    ExitWindowsEx(0, 0);
+                    return "Logoff";
+                case "lk":
+                    LockWorkStation();
+                    return "Lock";
+                default:
+                    return "SubCommandNotFound";
+            }
+        }
+        /// <summary>
+        /// A billentyűzet lenyomás szimulálásához JSON-ben érkezett kódot dolgozza fel.
+        /// </summary>
+        /// <param name="keyCode">A JSON-ben érkezett gombnyomás kódja</param>
+        /// <param name="capital">Nagy vagy kisbetű-e a lenyomott karakter</param>
+        private void keypressProcess(string keyCode, string capital)
+        {
+            if (keyCode == "bs")
+                keybd_event((byte)0x08, 0x9e, 0, 0);
+            else if (keyCode == "en")
+                keybd_event((byte)System.Windows.Forms.Keys.Enter, 0x45, 0, 0);
+            else if (keyCode == "vu")
+                VolumeControl("u");
+            else if (keyCode == "vd")
+                VolumeControl("d");
+            else
+            {
+                byte keybd;
+                bool isCapital = Convert.ToBoolean(Convert.ToInt32(capital));
+                if (int.TryParse(keyCode, out _))
+                {
+                    char key = Convert.ToChar(Convert.ToInt32(keyCode));
+                    Debug.WriteLine(Convert.ToString(key));
+                    Debug.WriteLine(VkKeyScan(key));
+                    if (VkKeyScan(key) > 255)
+                    {
+                        SendKeys.SendWait(Regex.Replace(key + "", "[+^%~()]", "{$0}") + "");
+                        Debug.WriteLine("SendKeys");
+                        return;
+                    }
+                    else
+                        keybd = calcKeybdByte(key, isCapital);
+                }
+                else
+                {
+                    isCapital = Char.IsUpper(Convert.ToChar(keyCode));
+                    keybd = Convert.ToByte(VkKeyScan(Char.ToLower(Convert.ToChar(keyCode))));
+                }
+                keypressSimulate(keybd, isCapital);
+            }
+        }
+        private byte calcKeybdByte(char key, bool isCapital)
+        {
+            if (isCapital)
+                return Convert.ToByte(key);
+            else
+                return Convert.ToByte(VkKeyScan(key));
+        }
+        /// <summary>
+        /// Billentyűzet lenyomást szimulál.
+        /// </summary>
+        /// <param name="keybd">A karakter byte kódja</param>
+        /// <param name="isCapital">Nagy vagy kisbetű</param>
+        private void keypressSimulate(byte keybd, bool isCapital)
+        {
+            if (isCapital)
+                keybd_event(16, 0, 0, 0);
+
+            keybd_event(keybd, 0x9e, 0, 0);
+
+            if (isCapital)
+                keybd_event(16, 0, 0x0002, 0);
+        }
+        /// <summary>
+        /// Az egér mozgatását végzi el.
+        /// </summary>
+        /// <param name="jsonX">Az X tengelyen való elmozdulás irányának paramétere</param>
+        /// <param name="jsonY">Az Y tengelyen való elmozdulás irányának paramétere</param>
+        private void cursorMove(int jsonX, int jsonY)
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
                 Invoke(new Action(delegate
                 {
-                    SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)Iparam);
+
+                    int xmove, ymove;
+                    if (x > jsonX)
+                        xmove = x - jsonX;
+                    else if (x < jsonX)
+                        xmove = x - jsonX;
+                    else xmove = 0;
+                    if (y > jsonY)
+                        ymove = y - jsonY;
+                    else if (y < jsonY)
+                        ymove = y - jsonY;
+                    else ymove = 0;
+                    this.Cursor = new Cursor(Cursor.Current.Handle);
+                    Cursor.Position = new Point(Cursor.Position.X - xmove, Cursor.Position.Y - ymove);
+                    x = Convert.ToInt32(jsonX);
+                    y = Convert.ToInt32(jsonY);
                 }));
             });
-            
         }
         /// <summary>
-        /// Bal egér kattintást szimulál
+        /// A számítógép hangerejét állítja 
         /// </summary>
-        public static void LeftMouseClick()
+        /// <param name="param">A hangerőállítás tipusa</param>
+        public string VolumeControl(string param)
         {
-            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            switch (param)
+            {
+                case "u":
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)APPCOMMAND_VOLUME_UP);
+                        }));
+                    });
+                    return "VolumeUp";
+                case "d":
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)APPCOMMAND_VOLUME_DOWN);
+                        }));
+                    });
+                    return "VolumeDown";
+                case "m":
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        Invoke(new Action(delegate
+                        {
+                            SendMessageW(this.Handle, WM_APPCOMMAND, this.Handle, (IntPtr)APPCOMMAND_VOLUME_MUTE);
+                        }));
+                    });
+                    return "VolumeMute";
+                default:
+                    return "SubCommandNotFound";
+            }
         }
         /// <summary>
-        /// Jobb egér kattintást szimulál
+        /// Egér kattintást szimulál
         /// </summary>
-        public static void RightMouseClick()
+        /// /// <param name="param">A gomb kódja</param>
+        public static string SimulateMouseClick(string param)
         {
-            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
-            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+            if (param == "l")
+            {
+                mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+                return "LeftClick";
+            }
+            else
+            {
+                mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+                mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+                return "RightClick";
+            }
         }
         /// <summary>
         /// Az állapotsáv szövegét és színét állítja át
@@ -323,8 +365,8 @@ namespace PCRemote
         /// <summary>
         /// A form betölésekor hívódik meg, amennyiben az indítás minimalizált módban be van állítva ez a rész minimalizálja a Formot.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (!Convert.ToBoolean(Properties.Settings.Default.minimized.ToString())) return;
@@ -337,8 +379,8 @@ namespace PCRemote
         /// <summary>
         /// A tálcaikonon jobbklikkelés után megjelenő menü elemekre való kattintáskor hívódik meg.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void contextmenu_click(object sender, EventArgs e)
         {
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender;
@@ -359,8 +401,8 @@ namespace PCRemote
         /// <summary>
         /// A számítógép adatait küldi el a telefonnak 5 másodpercenként.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void statusTimer_Tick(object sender, EventArgs e)
         {
             int ping = 0;
@@ -374,14 +416,19 @@ namespace PCRemote
                    && x.NetworkInterfaceType != NetworkInterfaceType.Tunnel
                    && x.OperationalStatus == OperationalStatus.Up
                    && x.Name.StartsWith("vEthernet") == false);
-
-                Ping myPing = new Ping();
-
-                PingReply reply = myPing.Send("google.com", 5000);
-                if (reply != null)
+                ThreadPool.QueueUserWorkItem(delegate
                 {
-                    ping = Convert.ToInt32(reply.RoundtripTime);
-                }
+                        Invoke(new Action(delegate
+                        {
+                            Ping myPing = new Ping();
+
+                        PingReply reply = myPing.Send("google.com", 5000);
+                        if (reply != null)
+                        {
+                            ping = Convert.ToInt32(reply.RoundtripTime);
+                        }
+                        }));
+                });
 
 
                 download = (ni.GetIPv4Statistics().BytesReceived - down) / 1024 / 5; down = ni.GetIPv4Statistics().BytesReceived;
@@ -411,8 +458,8 @@ namespace PCRemote
         /// <summary>
         /// A számítógép elalvásakor vagy felébresztésekor hívódik meg.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void OnPowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             switch (e.Mode)
@@ -428,8 +475,8 @@ namespace PCRemote
         /// <summary>
         /// Az autómatikus szerverkeresés portját állítja át.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void autodiscoveryNumeric_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.discoveryport = Convert.ToInt32(autodiscoveryNumeric.Value);
@@ -440,8 +487,8 @@ namespace PCRemote
         /// <summary>
         /// A szerver portját állítja át
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void portNumeric_ValueChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.serverport = Convert.ToInt32(portNumeric.Value);
@@ -453,8 +500,8 @@ namespace PCRemote
         /// <summary>
         /// A minimalizált módban indítást kapcsolja ki vagy be a checkbox-ra kattintva
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void minimize_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.minimized = minimize.Checked;
@@ -463,8 +510,8 @@ namespace PCRemote
         /// <summary>
         /// A rendszerrel való indítást kapcsolja ki vagy be a checkbox-ra kattintva
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void autostart_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.autostart = autostart.Checked;
@@ -479,8 +526,8 @@ namespace PCRemote
         /// <summary>
         /// A tálcán lévő ikonra kattintva minimalizálja vagy előtérbe hozza a programot
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void notifyIconMain_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)

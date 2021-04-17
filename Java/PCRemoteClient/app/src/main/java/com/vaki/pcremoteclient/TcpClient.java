@@ -37,7 +37,6 @@ public class TcpClient {
         mainActivity = parent;
         SP = PreferenceManager.getDefaultSharedPreferences(mainActivity.getBaseContext());
     }
-
     /**
      * Üzenetet küld a szervernek.
      * @param message Az üzenet szövege
@@ -99,7 +98,6 @@ public class TcpClient {
                     SystemClock.sleep(500);
                 }
 
-
                 InetAddress serverAddr = InetAddress.getByName(SP.getString("ipaddress", "1"));
 
                 Log.d("TCP", "C: Connecting...");
@@ -139,9 +137,7 @@ public class TcpClient {
                 Log.e("TCP", "C: Error1", e);
             }
         }
-
     }
-
     public interface OnMessageReceived {
         public void messageReceived(String message);
     }

@@ -56,10 +56,10 @@ namespace PCRemote
             mainForm.changeStatusBar("Server is stopped", Color.FromArgb(255, 136, 0));
         }
         /// <summary>
-        /// Egy kliens lekapcsolódásakor hívódik meg
+        /// Egy kliens lekapcsolódásakor lefutó callback metódus
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void Server_ClientDisconnected(object sender, TcpClient e)
         {
 
@@ -68,10 +68,10 @@ namespace PCRemote
             mainForm.updateConnectedCLientsText(server.ConnectedClientsCount);
         }
         /// <summary>
-        /// Egy kliens kapcsolódásakor hívódik meg
+        /// Egy kliens kapcsolódásakor lefutó callback metódus
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void Server_ClientConnected(object sender, TcpClient e)
         {
             Debug.WriteLine("Connected");
@@ -81,8 +81,8 @@ namespace PCRemote
         /// <summary>
         /// Akkor hívódik meg amikor a szervernek valamelyik kliens adatot küld
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">A küldő objektuma</param>
+        /// <param name="e">A paraméterek</param>
         private void Server_DataReceived(object sender, SimpleTCP.Message e)
         {
             Debug.WriteLine("|||" + e.MessageString + "|||");
@@ -94,14 +94,14 @@ namespace PCRemote
                     Debug.WriteLine("Found:" + e.MessageString + " Found");
                     int c = 0;
                     string[] split = message.Split(new string[] { "}{" }, StringSplitOptions.None);
-                    foreach (string asd in split)
+                    foreach (string p in split)
                     {
                         if (c == 0)
-                            mainForm.processJson(asd + '}');
+                            mainForm.processJson(p + '}');
                         else if (c == split.Length - 1)
-                            mainForm.processJson('{' + asd);
+                            mainForm.processJson('{' + p);
                         else
-                            mainForm.processJson('{' + asd + '}');
+                            mainForm.processJson('{' + p + '}');
                         c++;
                     }
                 }

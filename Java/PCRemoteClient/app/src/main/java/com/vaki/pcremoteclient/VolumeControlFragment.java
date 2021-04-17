@@ -46,15 +46,18 @@ public class VolumeControlFragment extends Fragment implements View.OnClickListe
         try {
             switch (v.getId()) {
                 case R.id.btn_up:
-                    obj.put("a", "vu");
+                    obj.put("a", "vc");
+                    obj.put("o", "u");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
                 case R.id.btn_down:
-                    obj.put("a", "vd");
+                    obj.put("a", "vc");
+                    obj.put("o", "d");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
                 case R.id.btn_mute:
-                    obj.put("a", "vm");
+                    obj.put("a", "vc");
+                    obj.put("o", "m");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
             }

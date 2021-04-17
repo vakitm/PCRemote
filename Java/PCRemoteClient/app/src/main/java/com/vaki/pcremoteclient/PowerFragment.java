@@ -50,34 +50,35 @@ public class PowerFragment extends Fragment implements View.OnClickListener {
         FancyButton v = (FancyButton) ve;
         JSONObject obj = new JSONObject();
         try {
+            obj.put("a", "pm");
             switch (v.getId()) {
                 case R.id.btn_shutdown:
-                    obj.put("a", "sd");
+                    obj.put("o", "sd");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
 
                 case R.id.btn_restart:
-                    obj.put("a", "rs");
+                    obj.put("o", "rs");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
 
                 case R.id.btn_sleep:
-                    obj.put("a", "sl");
+                    obj.put("o", "sl");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
 
                 case R.id.btn_hibernate:
-                    obj.put("a", "hb");
+                    obj.put("o", "hb");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
 
                 case R.id.btn_logoff:
-                    obj.put("a", "lo");
+                    obj.put("o", "lo");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
 
                 case R.id.btn_lock:
-                    obj.put("a", "lk");
+                    obj.put("o", "lk");
                     ((MainActivity) getActivity()).sendToServer(obj.toString());
                     break;
             }

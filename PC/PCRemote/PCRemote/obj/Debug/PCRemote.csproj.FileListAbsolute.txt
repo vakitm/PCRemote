@@ -42,3 +42,12 @@ C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemot
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.csproj.CopyComplete
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.exe
 C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\obj\Debug\PCRemote.pdb
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Castle.Core.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Moq.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Castle.Core.xml
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\Moq.xml
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\Vaki\Documents\Projects\PCRemote\PC\PCRemote\PCRemote\bin\Debug\System.Threading.Tasks.Extensions.xml

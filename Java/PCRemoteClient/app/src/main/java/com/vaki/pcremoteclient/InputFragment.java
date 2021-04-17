@@ -40,7 +40,8 @@ public class InputFragment extends Fragment {
             if (Math.sqrt(Math.pow(click[1] - lastmovepos[0], 2) + Math.pow(click[2] - lastmovepos[1], 2)) < 50 && hold) {
                 JSONObject obj = new JSONObject();
                 try {
-                    obj.put("a", "rc");
+                    obj.put("a", "mc");
+                    obj.put("o", "r");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -92,22 +93,14 @@ public class InputFragment extends Fragment {
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        if (c % 3 == 0) {
-                            obj.put("a", "m");
-                            obj.put("x", X);
-                            obj.put("y", Y);
-                            lastmovepos[0] = X;
-                            lastmovepos[1] = Y;
-
-                            ((MainActivity) getActivity()).sendToServer(obj.toString());
-                        }
-                        c++;
+                        moveEventProcess(obj,X,Y);
                         break;
                     case MotionEvent.ACTION_UP:
                         rightClickHander.removeCallbacks(rightClickCheckObj);
                         hold = false;
                         if (System.currentTimeMillis() - click[0] < 500 && Math.sqrt(Math.pow(click[1] - X, 2) + Math.pow(click[2] - Y, 2)) < 20) {
-                            obj.put("a", "lc");
+                            obj.put("a", "mc");
+                            obj.put("o", "l");
                             ((MainActivity) getActivity()).sendToServer(obj.toString());
                         } else {
                             obj.put("a", "u");
@@ -121,6 +114,18 @@ public class InputFragment extends Fragment {
             } catch (JSONException e) {
             }
             return true;
+        }
+        private void moveEventProcess(JSONObject obj, int X, int Y) throws JSONException {
+            if (c % 3 == 0) {
+                obj.put("a", "m");
+                obj.put("x", X);
+                obj.put("y", Y);
+                lastmovepos[0] = X;
+                lastmovepos[1] = Y;
+
+                ((MainActivity) getActivity()).sendToServer(obj.toString());
+            }
+            c++;
         }
     };
     @Override
