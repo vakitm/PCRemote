@@ -18,7 +18,16 @@ namespace PCRemote
         {
             this.mainForm = mainForm;
         }
-        //https://stackoverflow.com/questions/22852781/how-to-do-network-discovery-using-udp-broadcast
+
+        public MainForm MainForm
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        ////A https://stackoverflow.com/questions/22852781/how-to-do-network-discovery-using-udp-broadcast linkről másolt programkód részletet használtam alapul az alább található részhez.
         /// <summary>
         /// Elindítja az autómaikus szerver megtaláláshoz használt UDP szervert
         /// </summary>

@@ -26,7 +26,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private EditTextPreference autoDiscoveryPortPreference;
     private SharedPreferences SP;
 
-    //https://michieldemey.be/blog/network-discovery-using-udp-broadcast/
+    //A https://michieldemey.be/blog/network-discovery-using-udp-broadcast/ linkről másolt programkód részletet használtam alapul az alább található részhez.
     /**
      * Az autómatikus szerverkeresés gombjának a kattintás eseményfigyelője
      */

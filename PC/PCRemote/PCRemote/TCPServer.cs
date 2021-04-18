@@ -21,6 +21,14 @@ namespace PCRemote
             this.mainForm = mainForm;            
         }
 
+        public MainForm MainForm
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
         /// <summary>
         /// A távvezérléshez használt TCP szervert indítja el
         /// </summary>

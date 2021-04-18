@@ -17,7 +17,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.regex.Pattern;
 
-//https://stackoverflow.com/questions/38162775/really-simple-tcp-client
+//A https://stackoverflow.com/questions/38162775/really-simple-tcp-client linkről másolt programkód részletet használtam alapul az alább található részhez.
+
 public class TcpClient {
 
     private static final String TAG = TcpClient.class.getSimpleName();
