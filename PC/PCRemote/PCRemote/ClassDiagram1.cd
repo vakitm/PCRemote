@@ -1,2 +1,99 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ClassDiagram /> 
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PCRemote.TCPServer">
+    <Position X="13.25" Y="4.5" Width="1.5" />
+    <AssociationLine Name="MainForm" Type="PCRemote.MainForm" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="14.75" Y="6.143" />
+        <Point X="15.125" Y="6.143" />
+        <Point X="15.125" Y="3.625" />
+        <Point X="16.75" Y="3.625" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAgiCAAAAAgBEIAAQAAAAAAAAAAAAAAAAAAI=</HashCode>
+      <FileName>TCPServer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MainForm" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="PCRemote.UDPServer">
+    <Position X="13.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAAgBAIAAAAAAAAACAAAAAAAAAAAA=</HashCode>
+      <FileName>UDPServer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="MainForm" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="PCRemote.MainForm">
+    <Position X="16.75" Y="1.25" Width="1.5" />
+    <Members>
+      <Field Name="APPCOMMAND_VOLUME_DOWN" Hidden="true" />
+      <Field Name="APPCOMMAND_VOLUME_MUTE" Hidden="true" />
+      <Field Name="APPCOMMAND_VOLUME_UP" Hidden="true" />
+      <Field Name="autodiscoveryNumeric" Hidden="true" />
+      <Field Name="autostart" Hidden="true" />
+      <Field Name="components" Hidden="true" />
+      <Field Name="connectedcount" Hidden="true" />
+      <Method Name="contextmenu_click" Hidden="true" />
+      <Method Name="Dispose" Hidden="true" />
+      <Field Name="exit_icon" Hidden="true" />
+      <Method Name="exit_icon_Click" Hidden="true" />
+      <Method Name="exit_icon_MouseHover" Hidden="true" />
+      <Method Name="exit_icon_MouseLeave" Hidden="true" />
+      <Method Name="ExitWindowsEx" Hidden="true" />
+      <Method Name="InitializeComponent" Hidden="true" />
+      <Method Name="keybd_event" Hidden="true" />
+      <Field Name="label1" Hidden="true" />
+      <Field Name="label3" Hidden="true" />
+      <Field Name="label4" Hidden="true" />
+      <Field Name="label5" Hidden="true" />
+      <Field Name="leftbar" Hidden="true" />
+      <Method Name="LockWorkStation" Hidden="true" />
+      <Method Name="MainForm" Hidden="true" />
+      <Field Name="minimize" Hidden="true" />
+      <Method Name="minimize_CheckedChanged" Hidden="true" />
+      <Method Name="mouse_event" Hidden="true" />
+      <Field Name="MOUSEEVENTF_LEFTDOWN" Hidden="true" />
+      <Field Name="MOUSEEVENTF_LEFTUP" Hidden="true" />
+      <Field Name="MOUSEEVENTF_RIGHTDOWN" Hidden="true" />
+      <Field Name="MOUSEEVENTF_RIGHTUP" Hidden="true" />
+      <Field Name="notifyIconMain" Hidden="true" />
+      <Field Name="notifyIconMain_menu" Hidden="true" />
+      <Method Name="notifyIconMain_MouseClick" Hidden="true" />
+      <Method Name="OnPowerModeChanged" Hidden="true" />
+      <Field Name="openprogram" Hidden="true" />
+      <Field Name="pictureBox1" Hidden="true" />
+      <Field Name="portNumeric" Hidden="true" />
+      <Method Name="portNumeric_ValueChanged" Hidden="true" />
+      <Method Name="PowerManager" Hidden="true" />
+      <Field Name="quit" Hidden="true" />
+      <Method Name="ReleaseCapture" Hidden="true" />
+      <Field Name="restart" Hidden="true" />
+      <Method Name="SendMessage" Hidden="true" />
+      <Method Name="SendMessageW" Hidden="true" />
+      <Method Name="SetCursorPos" Hidden="true" />
+      <Method Name="SetSuspendState" Hidden="true" />
+      <Field Name="statusBar" Hidden="true" />
+      <Field Name="statusText" Hidden="true" />
+      <Field Name="statusTimer" Hidden="true" />
+      <Method Name="statusTimer_Tick" Hidden="true" />
+      <Field Name="toolStripSeparator1" Hidden="true" />
+      <Field Name="toolStripSeparator2" Hidden="true" />
+      <Field Name="topbar" Hidden="true" />
+      <Method Name="topbar_MouseDown" Hidden="true" />
+      <Field Name="toplabel" Hidden="true" />
+      <Method Name="toplabel_MouseDown" Hidden="true" />
+      <Method Name="VkKeyScan" Hidden="true" />
+      <Field Name="WM_APPCOMMAND" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>IwAiABsFQqICK1AMCGiok1KTAAJIDSyRogBhAgbQAgw=</HashCode>
+      <FileName>MainForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
