@@ -302,6 +302,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         return super.dispatchKeyEvent(event);
     }
+
+    /**
+     * Vissza adja a KeyEvent alapján hogy nagy vagy kis betű lett-e lenyomva.
+     */
     private String isShiftOn(KeyEvent event)
     {
         if(event.getMetaState()==KeyEvent.META_SHIFT_ON)
